@@ -1,0 +1,150 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.40">
+  <actions>
+    <org.jenkinsci.plugins.workflow.multibranch.JobPropertyTrackerAction plugin="workflow-multibranch@2.23">
+      <jobPropertyDescriptors>
+        <string>hudson.model.ParametersDefinitionProperty</string>
+        <string>com.sonyericsson.rebuild.RebuildSettings</string>
+        <string>jenkins.model.BuildDiscarderProperty</string>
+      </jobPropertyDescriptors>
+    </org.jenkinsci.plugins.workflow.multibranch.JobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.32">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>24</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>THREAD</name>
+          <defaultValue>10</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LOOP</name>
+          <defaultValue>10</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DURATION</name>
+          <defaultValue>600</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>SCENARIO</name>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Geology.jmx</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.90">
+    <script>properties(
+    [
+        [$class: &apos;RebuildSettings&apos;, 
+        autoRebuild: false, 
+        rebuildDisabled: false], 
+        buildDiscarder(
+            logRotator(
+                artifactDaysToKeepStr: &apos;&apos;, 
+                artifactNumToKeepStr: &apos;&apos;, 
+                daysToKeepStr: &apos;&apos;, 
+                numToKeepStr: &apos;24&apos;)), 
+        parameters([string(defaultValue: &apos;10&apos;, name: &apos;THREAD&apos;), 
+        string(
+            defaultValue: &apos;10&apos;, 
+            name: &apos;LOOP&apos;), 
+        string(
+            defaultValue: &apos;600&apos;, 
+            name: &apos;DURATION&apos;), 
+        choice(
+            choices: [&apos;Geology.jmx&apos;], 
+            name: &apos;SCENARIO&apos;)
+    ])
+])
+
+node(&quot;master&quot;){
+    stage(&quot;delete dir&quot;){
+        deleteDir()
+    }
+    stage(&quot;git download&quot;){
+        git branch: &apos;main&apos;, credentialsId: &apos;99e93e45-746d-4e85-a1cb-8f4a30ba736a&apos;, url: &apos;https://github.com/youketero/jmeter_test&apos;
+    }
+    stage(&quot;run jmeter test&quot;){
+        Date startDate = new Date()
+        echoStartTest(startDate)
+        startDateString = date(startDate)
+        def sTimestamp = System.currentTimeMillis().toString()
+        sh &apos;docker run --name jmeter --rm --volumes-from=jmeter-elastic-jenkins -e SCENARIO=$WORKSPACE/$SCENARIO -e WORKSPACE=$WORKSPACE -e PARAMETERS=&quot; -JTHREADS=$THREAD -JLOOP=$LOOP &quot; -e BUILD_NUMBER=$BUILD_NUMBER java:8-jdk &apos;
+    
+        Date endDate = new Date();
+        echo endDate.toString()
+        echoEndTest(endDate)
+        endDateString = date(endDate)
+		
+         //get runtime 
+		String runtime = getDuration(endDate,startDate)
+        echo &quot;Test run time: &quot; + runtime
+        def eTimestamp = System.currentTimeMillis().toString()
+        // Kibana links	
+        echo &quot;Kibana Dashboard URL: \n&quot; + getKibanaDashboardUrl(startDateString, endDateString)
+        echo &quot;Kibana Metric Beat URL: \n&quot; + getKibanaMetricBeatUrl()
+    }
+    stage(&quot;archive artifacts&quot;){
+        publishHTML([
+            keepAll: false, 
+            reportDir: &apos;report_$BUILD_NUMBER&apos;, 
+            reportFiles: &apos;index.html&apos;, 
+            reportName: &apos;Report&apos;
+            ])
+        archiveArtifacts artifacts: &quot;jmeter_${BUILD_NUMBER}.log, report_${BUILD_NUMBER}.csv, report_${BUILD_NUMBER}/**&apos;, followSymlinks: false&quot;
+    }
+}
+
+
+def getKibanaDashboardUrl(startDateString, endDateString){
+    start = URLEncoder.encode(startDateString,&quot;UTF-8&quot;)
+    end = URLEncoder.encode(endDateString,&quot;UTF-8&quot;)
+    return &quot;http://localhost:5601/app/kibana#/dashboard/d5324020-98a8-11eb-aafc-033b3d458859?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:&apos;${start}&apos;,to:&apos;${end}&apos;))&quot;
+}
+
+def getKibanaMetricBeatUrl(){
+    return &quot;http://localhost:5601/app/infra#/infrastructure/inventory&quot;
+}
+
+def date(time){
+    return time.format(&quot;yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSZ&quot;).toString()
+}
+
+def echoStartTest(time){
+    echo &quot;Start JMeter test: &quot; + time.toString()
+}
+
+def echoEndTest(time){
+    echo &quot;End JMeter test: &quot; + time.toString()
+}
+
+String getDuration(Date endDate,Date startDate){
+	return groovy.time.TimeCategory.minus(endDate, startDate).toString()
+}
+
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

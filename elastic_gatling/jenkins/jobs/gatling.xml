@@ -1,0 +1,138 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.40">
+  <actions>
+    <org.jenkinsci.plugins.workflow.multibranch.JobPropertyTrackerAction plugin="workflow-multibranch@2.23">
+      <jobPropertyDescriptors>
+        <string>hudson.model.ParametersDefinitionProperty</string>
+      </jobPropertyDescriptors>
+    </org.jenkinsci.plugins.workflow.multibranch.JobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.32">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>ScenarioName</name>
+          <description>Select simulation script</description>
+          <choices>
+            <string>Task1</string>
+            <string>Task2</string>
+            <string>Task3</string>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Threads</name>
+          <description>Number of users( threads)</description>
+          <defaultValue>5</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Requests</name>
+          <description>Number of requests</description>
+          <defaultValue>5</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Duration</name>
+          <description>Duration of the performance test</description>
+          <defaultValue>120</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>TimeUnit</name>
+          <description>Select time unit</description>
+          <choices>
+            <string>seconds</string>
+            <string>hours</string>
+            <string>minutes</string>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>LoadProfile</name>
+          <description>Select load profile</description>
+          <choices>
+            <string>Load</string>
+            <string>Capacity</string>
+            <string>Spike</string>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.90">
+    <script>properties(
+    [
+        parameters(
+            [
+                choice(
+                    choices: [&apos;Task1&apos;,&apos;Task2&apos;,&apos;Task3&apos;], 
+                    description: &apos;Select simulation script&apos;, 
+                    name: &apos;ScenarioName&apos;), 
+                string(defaultValue:  params.Threads?: &quot;&quot;, 
+                    description: &apos;Number of users( threads)&apos;, 
+                    name: &apos;Threads&apos;, 
+                    trim: true), 
+                string(defaultValue: params.Requests?: &quot;&quot;, 
+                    description: &apos;Number of requests&apos;, 
+                    name: &apos;Requests&apos;, 
+                    trim: true), 
+                string(defaultValue: params.Duration?: &quot;&quot;, 
+                    description: &apos;Duration of the performance test&apos;, 
+                    name: &apos;Duration&apos;, 
+                    trim: false),
+                choice(
+                    choices: [&apos;seconds&apos;,&apos;hours&apos;,&apos;minutes&apos;], 
+                    description: &apos;Select time unit&apos;, 
+                    name: &apos;TimeUnit&apos;), 
+                choice(
+                    choices: [&apos;Load&apos;,&apos;Capacity&apos;,&apos;Spike&apos;], 
+                    description: &apos;Select load profile&apos;, 
+                    name: &apos;LoadProfile&apos;),
+                ]
+            )
+        ]
+    )
+
+node(&quot;master&quot;){
+    stage(&quot;delete workspace&quot;){
+		deleteDir()
+	}
+    stage(&quot;download repository&quot;){
+        git credentialsId: &apos;99e93e45-746d-4e85-a1cb-8f4a30ba736a&apos;, url: &apos;https://github.com/youketero/Graddle.git&apos;
+    }
+	
+	stage(&quot;Run gatling test&quot;){
+		sh &apos;chmod +x gradlew&apos;
+        sh &apos;./gradlew runGatlingSimulation -Psimulation=&apos; + params.Simulation + &apos; -Pusers=&apos; + params.Threads + &apos; -Prequests=&apos; + params.Requests + &apos; -Pduration=&apos; + params.Duration + &apos; -PdurationUnit=&apos; + params.TimeUnit + &apos; -PscenarioName=&apos; + params.ScenarioName + &apos; -PloadProfile=&apos; + params.LoadProfile + &apos;&apos;
+        sh &quot;find . -type f -name &apos;simulation.log&apos; -exec cat {} + &gt;&gt; output.log&quot;
+        contentReplace(configs: [fileContentReplaceConfig(configs: [fileContentReplaceItemConfig(matchCount: 0, replace: &apos;;&apos;, search: &apos;(\t+)&apos;)], fileEncoding: &apos;UTF-8&apos;, filePath: &apos;output.log&apos;)])
+        contentReplace(configs: [fileContentReplaceConfig(configs: [fileContentReplaceItemConfig(matchCount: 0, replace: &apos;;START&apos;, search: &apos;;(.*);START&apos;)], fileEncoding: &apos;UTF-8&apos;, filePath: &apos;output.log&apos;)])
+        contentReplace(configs: [fileContentReplaceConfig(configs: [fileContentReplaceItemConfig(matchCount: 0, replace: &apos;;END&apos;, search: &apos;;(.*);END&apos;)], fileEncoding: &apos;UTF-8&apos;, filePath: &apos;output.log&apos;)])
+         contentReplace(configs: [fileContentReplaceConfig(configs: [fileContentReplaceItemConfig(matchCount: 0, replace: &apos;0;0;NONE; \n&apos;, search: &apos;\\S{1}$\n&apos;)], fileEncoding: &apos;UTF-8&apos;, filePath: &apos;output.log&apos;)])
+	}
+	
+	stage(&quot;Save report&quot;){
+	    def output = sh returnStdout: true, script: &apos;cd results \n ls&apos;
+		archiveArtifacts artifacts: &apos;results/**&apos;, excludes: null, fingerprint: true
+		publishHTML([
+		    allowMissing: true, 
+		    alwaysLinkToLastBuild: false, 
+		    keepAll: true, 
+		    reportDir: &apos;results/&apos; + output, 
+		    reportFiles: &apos;index.html&apos;, 
+		    reportName: &apos;Report &apos; + BUILD_NUMBER, 
+		    ])
+	}
+
+}
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

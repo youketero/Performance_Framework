@@ -1,0 +1,5 @@
+[wsl2]
+memory=8GB
+swap=2
+processors=6
+localhostForwarding=true

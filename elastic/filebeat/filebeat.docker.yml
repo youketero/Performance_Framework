@@ -1,0 +1,39 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /usr/share/jmeter-csv/jobs/**/workspace/report*.csv  
+    fields: 
+       type: test_log_csv  
+    fields_under_root: true   
+  - type: log
+    enabled: true
+    paths:
+      - /usr/share/jmeter-csv/jobs/**/workspace/jmeter*.log
+    fields:
+        type: test_log_jmeter
+    fields_under_root: true    
+#  - type: log
+#    enabled: true
+#    paths:
+#      - /usr/share/spring-boot-logs/spring-boot-logger.log
+
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+processors:
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+logging.level: debug
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644

@@ -1,0 +1,100 @@
+version: '3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+    container_name: jmeter-elastic-apm-elasticsearch
+    environment:
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+    ports:
+      - 9200:9200
+      - 9300:9300
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.6.2
+    container_name: jmeter-elastic-apm-kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.6.2
+    container_name: jmeter-elastic-apm-logstash
+    ports:
+      - "12201:12201/udp"
+      - "5044:5044"
+      - "9600:9600"
+    volumes:
+      - "./logstash/pipeline/:/usr/share/logstash/pipeline/"
+      - "./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml"
+    depends_on:
+      - elasticsearch
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:7.6.2
+    container_name: jmeter-elastic-apm-metricbeat
+    hostname: jmeter-elastic-apm-metricbeat
+    user: root
+    volumes:
+      - /proc:/hostfs/proc:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /:/hostfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./metricbeat/metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    environment:
+      - KIBANA_HOST=kibana:5601
+    command: ["--strict.perms=false", "-system.hostfs=/hostfs"]
+    depends_on:
+      - elasticsearch
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.6.2
+    container_name: jmeter-elastic-apm-filebeat
+    hostname: jmeter-elastic-apm-filebeat
+    user: root
+    volumes:
+      - ./filebeat/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./elastic/filebeat/log:/var/log/filebeat
+      - ../jmeter/results/:/usr/share/jmeter/
+      - jenkins-home:/usr/share/jmeter-csv/
+    environment:
+      - KIBANA_HOST=kibana:5601
+    command: filebeat -e -strict.perms=false
+    depends_on:
+      - logstash
+  docker-dind:
+    image: docker:dind
+    volumes:
+      - docker-dind:/usr/local/bin
+      - /var/run/docker.sock:/var/run/docker.sock
+    container_name: docker-dind
+    privileged: true
+  jenkins:
+    image: jenkins/jenkins
+    build: ./jenkins
+    depends_on:
+      - docker-dind     
+    container_name: jmeter-elastic-jenkins
+    ports:
+      - "8080:8080"
+    volumes:
+      - docker-dind:/usr/local/bin/dind/
+      - /var/run/docker.sock:/var/run/docker.sock
+      - jenkins-home:/var/jenkins_home 
+    restart: always
+  jmeter:
+    container_name: jmeter
+    build: ./jmeter
+    image: "java:8-jdk"
+    entrypoint:
+      - cat  
+  portainer:
+    image: portainer/portainer
+    container_name: jmeter-elastic-portainer
+    ports:
+      - "9000:9000"
+    volumes:
+       - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+volumes:
+    docker-dind:
+    jenkins-home:
