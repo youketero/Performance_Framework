@@ -1,9 +1,9 @@
 # Performance_Framework
 ----------------------
-**Appendix**
-[Preconfiguration](https://github.com/youketero/Performance_Framework#preconfigurationoptional-but-preferable)
-[Intalling](https://github.com/youketero/Performance_Framework#installing)
-[Framework architecture](https://github.com/youketero/Performance_Framework#framework-architecture)
+### Appendix 
+[Preconfiguration](https://github.com/youketero/Performance_Framework#preconfigurationoptional-but-preferable)  
+[Intalling](https://github.com/youketero/Performance_Framework#installing)  
+[Framework architecture](https://github.com/youketero/Performance_Framework#framework-architecture)  
 
 ## Preconfiguration(optional but preferable)
 ---------------
@@ -57,14 +57,11 @@ Framework consist of such aplications:
 - Jenkins. Automate performance process.Need to run gatling and jmeter jobs.
 - Portainer. Managing all docker containers.
 - Flask app. Simple application with blog. Store data in SQLite3
-------------------
 
 ### Architecture structure of framework with gatling
 ------------------
 
-
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/framework_architecture.jpg "Framework architecture")
-
 
 ### Architecture structure of framework with jmeter
 ------------------
