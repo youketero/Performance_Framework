@@ -39,9 +39,6 @@ Job used pipeline script(Type of pipeline: scripted).
 5. Navigate to kibana.
 + You need to add dashboard. Open **Settings**. Open **Saved objects**. Click **import** and choose file in path(framework_path/kibana/gatling.ndjson)
 + After that check that you have all indices. Select index management. And check that you have **gatling** index
-[2]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
-[3]: https://github.com/youketero/Performance_Framework
-[4]: https://www.jenkins.io/doc/book/pipeline/syntax/ 
 
 ## Framework architecture
 ------------------
@@ -55,6 +52,17 @@ Framework consist of such aplications:
 - Portainer. Managing all docker containers.
 - Flask app. Simple application with blog. Store data in SQLite3
 ------------------
-Architecture structure of framework with gatling
+###Architecture structure of framework with gatling
+
+
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/framework_architecture.jpg "Framework architecture")
-Architecture structure of framework with jmeter
+
+
+###Architecture structure of framework with jmeter
+
+
+
+
+[2]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
+[3]: https://github.com/youketero/Performance_Framework
+[4]: https://www.jenkins.io/doc/book/pipeline/syntax/ 
