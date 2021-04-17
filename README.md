@@ -31,11 +31,11 @@ After building and creating containers services have such adresses and ports:
 - Portainer: localhost:9000
 - Flask app: localhost:5000
 4. Navigate to jenkins(Login: admin, Password: admin).
-4.0 If you want to use github(by default basic scipts download from github repository) add credentials by this path **options->credentials**
++ If you want to use github(by default basic scipts download from github repository) add credentials by this path **options->credentials**
 By default in jenkins you can see one job - gatling. It is gatling tests based on **Gradle builder + gatling**
 Job used pipeline script(Type of pipeline: scripted). 
-4.1 Change you github credentials. Choose **Configure**. After that choose **Pipeline script**. Choose in dropdown **git** and fill all needed info. **Generate** and paste into script in image below.
-4.2 If you want to know more about pipeline scripting you may read more [here][4]
++ Change you github credentials. Choose **Configure**. After that choose **Pipeline script**. Choose in dropdown **git** and fill all needed info. **Generate** and paste into script in image below.
++ If you want to know more about pipeline scripting you may read more [here][4]
 
 [2]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [3]: https://github.com/youketero/Performance_Framework
