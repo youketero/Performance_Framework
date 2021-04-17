@@ -2,7 +2,7 @@
 ----------------------
 ### Appendix 
 [Preconfiguration](https://github.com/youketero/Performance_Framework#preconfigurationoptional-but-preferable)  
-[Intalling](https://github.com/youketero/Performance_Framework#installing)  
+[Installing](https://github.com/youketero/Performance_Framework#installing)  
 [Framework architecture](https://github.com/youketero/Performance_Framework#framework-architecture)  
 
 ## Preconfiguration(optional but preferable)
@@ -62,6 +62,8 @@ Job used pipeline script(Type of pipeline: scripted).
 + After that check that you have all indices.
 + Select index management. And check that you have **gatling** index  
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/Index_kibana.jpg "Index kibana") 
+6. Run performance script to check that the framework works.
+
 
 ## Framework architecture
 ------------------
