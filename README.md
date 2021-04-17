@@ -54,6 +54,7 @@ Framework consist of such aplications:
 - Jenkins. Automate performance process.Need to run gatling and jmeter jobs.
 - Portainer. Managing all docker containers.
 - Flask app. Simple application with blog. Store data in SQLite3
+------------------
 Architecture structure of framework with gatling
-![alt-текст](https://github.com/youketero/Performance_Framework/tree/main/elastic_gatling/img/framework_architecture.jpg "Framework architecture")
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/framework_architecture.jpg "Framework architecture")
 Architecture structure of framework with jmeter
