@@ -2,7 +2,7 @@
 ## Preconfiguration(optional but preferable)
 ---------------
 You need this items for performance framework
-- Install docker [Docker install website][1]
+- Install docker [Docker install website](https://docs.docker.com/engine/install/)
 - Install WSL 2(optional)[WSL2 install guide][2]
 - Install Java(8 version or higher) 
 ## Installing
@@ -19,9 +19,12 @@ For installing and building framework you need to:
   docker compose up -d metricbeat
   docker compose up -d portainer
   docker compose up -d web
-  docker compose up -d jenkins```
+  docker compose up -d jenkins
+  ```
+- If you want only build container use this command.
+```
+docker-compose build -d
+```
 
-
-[1]: https://docs.docker.com/engine/install/
 [2]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [3]: https://github.com/youketero/Performance_Framework
