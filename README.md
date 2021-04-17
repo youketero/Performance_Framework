@@ -1,4 +1,10 @@
 # Performance_Framework
+----------------------
+**Appendix**
+[Preconfiguration](https://github.com/youketero/Performance_Framework#preconfigurationoptional-but-preferable)
+[Intalling](https://github.com/youketero/Performance_Framework#installing)
+[Framework architecture](https://github.com/youketero/Performance_Framework#framework-architecture)
+
 ## Preconfiguration(optional but preferable)
 ---------------
 You need this items for performance framework
