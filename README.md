@@ -36,7 +36,24 @@ By default in jenkins you can see one job - gatling. It is gatling tests based o
 Job used pipeline script(Type of pipeline: scripted). 
 + Change you github credentials. Choose **Configure**. After that choose **Pipeline script**. Choose in dropdown **git** and fill all needed info. **Generate** and paste into script in image below.
 + If you want to know more about pipeline scripting you may read more [here][4]
-
+5. Navigate to kibana.
++ You need to add dashboard. Open **Settings**. Open **Saved objects**. Click **import** and choose file in path(framework_path/kibana/gatling.ndjson)
++ After that check that you have all indices. Select index management. And check that you have **gatling** index
 [2]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [3]: https://github.com/youketero/Performance_Framework
 [4]: https://www.jenkins.io/doc/book/pipeline/syntax/ 
+
+## Framework architecture
+------------------
+Framework consist of such aplications:
+- Elasticsearch. Need to store all data and creating templates based on data.
+- Kibana. Visualization of data. 
+- Filebeat. Need to read data from load machine and send to logstash.
+- Logstash. Modify data to common format and send to elasticsearch.
+- Metricbeat. Get server metrics from docker containers and from host.
+- Jenkins. Automate performance process.Need to run gatling and jmeter jobs.
+- Portainer. Managing all docker containers.
+- Flask app. Simple application with blog. Store data in SQLite3
+Architecture structure of framework with gatling
+![alt-текст](https://github.com/youketero/Performance_Framework/tree/main/elastic_gatling/img/framework_architecture "Framework architecture")
+Architecture structure of framework with jmeter
