@@ -40,7 +40,17 @@ After building and creating containers services have such adresses and ports:
 + If you want to use github(by default basic scipts download from github repository) add credentials by this path **options->credentials**
 By default in jenkins you can see one job - gatling. It is gatling tests based on **Gradle builder + gatling**
 Job used pipeline script(Type of pipeline: scripted). 
-+ Change you github credentials. Choose **Configure**. After that choose **Pipeline script**. Choose in dropdown **git** and fill all needed info. **Generate** and paste into script in image below.
++ Change you github credentials. Choose **Configure**.
++ After that choose **Pipeline syntax**. 
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/Pipeline_syntax.jpg "Pipeline syntax")
++ Choose in dropdown **git** and fill all needed info. 
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/Git_hub.jpg "Git Hub config")
++ Add your credentials
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/Credentials.jpg "Credentials")
++ **Generate** and copy code.
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/Export_cred.jpg "Export credentials")
++ Paste into pipeline script.
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/pipeline_script.jpg "Pipeline script")
 + If you want to know more about pipeline scripting you may read more [here][4]
 5. Navigate to kibana.
 + You need to add dashboard. Open **Settings**. Open **Saved objects**. Click **import** and choose file in path(framework_path/kibana/gatling.ndjson)
