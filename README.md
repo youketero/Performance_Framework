@@ -40,7 +40,7 @@ After building and creating containers services have such adresses and ports:
 + If you want to use github(by default basic scipts download from github repository) add credentials by this path **options->credentials**
 By default in jenkins you can see one job - gatling. It is gatling tests based on **Gradle builder + gatling**
 Job used pipeline script(Type of pipeline: scripted). 
-+ Change you github credentials. Choose **Configure**.
++ Change you github credentials. Click on gatling job. Choose **Configure**.
 + After that choose **Pipeline syntax**. 
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/Pipeline_syntax.jpg "Pipeline syntax")
 + Choose in dropdown **git** and fill all needed info. 
