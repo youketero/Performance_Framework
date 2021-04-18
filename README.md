@@ -57,7 +57,7 @@ Job used pipeline script(Type of pipeline: scripted).
 + Open **Settings**. 
 + Open **Saved objects**.  
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/Management_kibana.jpg "Management") 
-+ Click **import** and choose file in path(framework_path/kibana/gatling.ndjson)  
++ Click **import** and choose file in path(framework_path/kibana/gatling.ndjson or framework_path/kibana/jmeter.ndjson)  
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/Import_kibana.jpg "Import") 
 + After that check that you have all indices.
 + Select index management. And check that you have **gatling** index  
