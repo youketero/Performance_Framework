@@ -80,12 +80,12 @@ Framework consist of such aplications:
 ### Architecture structure of framework with gatling
 ------------------
 
-![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/framework_architecture.jpg "Framework architecture")
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/framework_architecture.jpg "Framework architecture gatling")
 
 ### Architecture structure of framework with jmeter
 ------------------
 
-
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/architecture_jmeter.jpg "Framework architecture jmeter")
 
 [2]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [3]: https://github.com/youketero/Performance_Framework

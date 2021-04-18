@@ -19,16 +19,19 @@
         <hudson.model.ChoiceParameterDefinition>
           <name>ScenarioName</name>
           <description>Select simulation script</description>
-          <choices>
-            <string>Task1</string>
-            <string>Task2</string>
-            <string>Task3</string>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Task1</string>
+              <string>Task2</string>
+              <string>Task3</string>
+              <string>Flask</string>
+            </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>Threads</name>
           <description>Number of users( threads)</description>
-          <defaultValue>5</defaultValue>
+          <defaultValue>1</defaultValue>
           <trim>true</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
@@ -40,25 +43,39 @@
         <hudson.model.StringParameterDefinition>
           <name>Duration</name>
           <description>Duration of the performance test</description>
-          <defaultValue>120</defaultValue>
+          <defaultValue>20</defaultValue>
           <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>TimeUnit</name>
           <description>Select time unit</description>
-          <choices>
-            <string>seconds</string>
-            <string>hours</string>
-            <string>minutes</string>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>seconds</string>
+              <string>hours</string>
+              <string>minutes</string>
+            </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>LoadProfile</name>
           <description>Select load profile</description>
-          <choices>
-            <string>Load</string>
-            <string>Capacity</string>
-            <string>Spike</string>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Load</string>
+              <string>Capacity</string>
+              <string>Spike</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Configuration</name>
+          <description>Select site to be tested</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Flask</string>
+              <string>Geology</string>
+            </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
@@ -70,7 +87,7 @@
         parameters(
             [
                 choice(
-                    choices: [&apos;Task1&apos;,&apos;Task2&apos;,&apos;Task3&apos;], 
+                    choices: [&apos;Flask&apos;], 
                     description: &apos;Select simulation script&apos;, 
                     name: &apos;ScenarioName&apos;), 
                 string(defaultValue:  params.Threads?: &quot;&quot;, 
@@ -90,9 +107,13 @@
                     description: &apos;Select time unit&apos;, 
                     name: &apos;TimeUnit&apos;), 
                 choice(
-                    choices: [&apos;Load&apos;,&apos;Capacity&apos;,&apos;Spike&apos;], 
+                    choices: [&apos;Load&apos;,&apos;Capacity&apos;], 
                     description: &apos;Select load profile&apos;, 
                     name: &apos;LoadProfile&apos;),
+                choice(
+                    choices: [&apos;Flask&apos;], 
+                    description: &apos;Select site to be tested&apos;, 
+                    name: &apos;Configuration&apos;)    
                 ]
             )
         ]
@@ -103,17 +124,34 @@ node(&quot;master&quot;){
 		deleteDir()
 	}
     stage(&quot;download repository&quot;){
-        git credentialsId: &apos;99e93e45-746d-4e85-a1cb-8f4a30ba736a&apos;, url: &apos;https://github.com/youketero/Graddle.git&apos;
+        git credentialsId: &apos;a1886ed6-d0b5-4f69-8cc3-342b9990ce31&apos;, url: &apos;https://github.com/youketero/Graddle.git&apos;
     }
 	
 	stage(&quot;Run gatling test&quot;){
+	    
+	    Date startDate = new Date()
+        echoStartTest(startDate)
+        startDateString = date(startDate)
+	    
 		sh &apos;chmod +x gradlew&apos;
-        sh &apos;./gradlew runGatlingSimulation -Psimulation=&apos; + params.Simulation + &apos; -Pusers=&apos; + params.Threads + &apos; -Prequests=&apos; + params.Requests + &apos; -Pduration=&apos; + params.Duration + &apos; -PdurationUnit=&apos; + params.TimeUnit + &apos; -PscenarioName=&apos; + params.ScenarioName + &apos; -PloadProfile=&apos; + params.LoadProfile + &apos;&apos;
+        sh &apos;./gradlew runGatlingSimulation -Psimulation=&apos; + params.Simulation + &apos; -Pusers=&apos; + params.Threads + &apos; -Prequests=&apos; + params.Requests + &apos; -Pconfiguration=&apos; + params.Configuration + &apos; -Pduration=&apos; + params.Duration + &apos; -PdurationUnit=&apos; + params.TimeUnit + &apos; -PscenarioName=&apos; + params.ScenarioName + &apos; -PloadProfile=&apos; + params.LoadProfile + &apos;&apos;
         sh &quot;find . -type f -name &apos;simulation.log&apos; -exec cat {} + &gt;&gt; output.log&quot;
         contentReplace(configs: [fileContentReplaceConfig(configs: [fileContentReplaceItemConfig(matchCount: 0, replace: &apos;;&apos;, search: &apos;(\t+)&apos;)], fileEncoding: &apos;UTF-8&apos;, filePath: &apos;output.log&apos;)])
         contentReplace(configs: [fileContentReplaceConfig(configs: [fileContentReplaceItemConfig(matchCount: 0, replace: &apos;;START&apos;, search: &apos;;(.*);START&apos;)], fileEncoding: &apos;UTF-8&apos;, filePath: &apos;output.log&apos;)])
         contentReplace(configs: [fileContentReplaceConfig(configs: [fileContentReplaceItemConfig(matchCount: 0, replace: &apos;;END&apos;, search: &apos;;(.*);END&apos;)], fileEncoding: &apos;UTF-8&apos;, filePath: &apos;output.log&apos;)])
-         contentReplace(configs: [fileContentReplaceConfig(configs: [fileContentReplaceItemConfig(matchCount: 0, replace: &apos;0;0;NONE; \n&apos;, search: &apos;\\S{1}$\n&apos;)], fileEncoding: &apos;UTF-8&apos;, filePath: &apos;output.log&apos;)])
+        contentReplace(configs: [fileContentReplaceConfig(configs: [fileContentReplaceItemConfig(matchCount: 0, replace: &apos;0;0;NONE; \n&apos;, search: &apos;\\S{1}$\n&apos;)], fileEncoding: &apos;UTF-8&apos;, filePath: &apos;output.log&apos;)])
+        
+        Date endDate = new Date();
+        echo endDate.toString()
+        echoEndTest(endDate)
+        endDateString = date(endDate)
+        
+        String runtime = getDuration(endDate,startDate)
+        echo &quot;Test run time: &quot; + runtime
+        def eTimestamp = System.currentTimeMillis().toString()
+        // Kibana links	
+        echo &quot;Kibana Dashboard URL: \n&quot; + getKibanaDashboardUrl(startDateString, endDateString)
+        echo &quot;Kibana Metric Beat URL: \n&quot; + getKibanaMetricBeatUrl()
 	}
 	
 	stage(&quot;Save report&quot;){
@@ -129,6 +167,33 @@ node(&quot;master&quot;){
 		    ])
 	}
 
+}
+
+
+def getKibanaDashboardUrl(startDateString, endDateString){
+    start = URLEncoder.encode(startDateString,&quot;UTF-8&quot;)
+    end = URLEncoder.encode(endDateString,&quot;UTF-8&quot;)
+    return &quot;http://localhost:5601/app/kibana#/dashboard/ef5bbb20-9d21-11eb-a39c-890bb52878b8?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:&apos;${start}&apos;,to:&apos;${end}&apos;))&quot;
+}
+
+def getKibanaMetricBeatUrl(){
+    return &quot;http://localhost:5601/app/infra#/infrastructure/inventory&quot;
+}
+
+def date(time){
+    return time.format(&quot;yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSZ&quot;).toString()
+}
+
+def echoStartTest(time){
+    echo &quot;Start Gatling test: &quot; + time.toString()
+}
+
+def echoEndTest(time){
+    echo &quot;End Gatling test: &quot; + time.toString()
+}
+
+String getDuration(Date endDate,Date startDate){
+	return groovy.time.TimeCategory.minus(endDate, startDate).toString()
 }
 </script>
     <sandbox>true</sandbox>
