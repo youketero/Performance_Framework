@@ -3,7 +3,8 @@
 ### Appendix 
 [Preconfiguration](https://github.com/youketero/Performance_Framework#preconfigurationoptional-but-preferable)  
 [Installing](https://github.com/youketero/Performance_Framework#installing)  
-[Framework architecture](https://github.com/youketero/Performance_Framework#framework-architecture)  
+[Framework architecture](https://github.com/youketero/Performance_Framework#framework-architecture) 
+[How to load Flask app](https://github.com/youketero/Performance_Framework#how-to-load-flask-app)   
 
 ## Preconfiguration(optional but preferable)
 ---------------
@@ -86,6 +87,16 @@ Framework consist of such aplications:
 ------------------
 
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/architecture_jmeter.jpg "Framework architecture jmeter")
+
+
+## How to load Flask app
+1. Open command line and write command  
+```
+ipconfig
+```
+2. Copy IP address and add port 5000. The final address is: YOUR_IP:5000
+3. Add to your jmeter or gatling this address.
+4. Done
 
 [2]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [3]: https://github.com/youketero/Performance_Framework
