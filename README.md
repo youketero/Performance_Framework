@@ -112,7 +112,6 @@ Also you can add your own parameters to pipeline and performance script and cust
 For performance monitoring to kibana dashboad added.
 Here some screenshots of vizualizations.
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/kibana_dashboard_jmeter.gif "Kibana dashboard for jmeter")
-![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/jmeter_vid.mkv "Kibana dashboard for jmeter")
 
 -----------
 On the .gif you can see some vizualizations
