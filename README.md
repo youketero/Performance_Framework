@@ -104,9 +104,9 @@ ipconfig
   
 How to run jmeter test. 
 You can run test with parameters: THREAD - number of paralel users, LOOP - number of repeats, DURATION - duration of test(you can create perf test depends on loop or duration parameter. By default uses LOOP parameter).  
-![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/jenkins_jmeter.gif "Jenkins job"  
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/jenkins_jmeter.gif "Jenkins job")  
 Also you can add your own parameters to pipeline and performance script and customize this job or create another.  
-![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/jenkins_param.gif "Jenkins job" 
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/jenkins_param.gif "Jenkins job") 
 
 ## Kibana dashboard for jmeter tests
 -----------
