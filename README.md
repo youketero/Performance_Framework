@@ -106,13 +106,30 @@ How to run jmeter test.
 You can run test with parameters: THREAD - number of paralel users, LOOP - number of repeats, DURATION - duration of test(you can create perf test depends on loop or duration parameter. By default uses LOOP parameter).  
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/jenkins_jmeter.gif "Jenkins job")  
 Also you can add your own parameters to pipeline and performance script and customize this job or create another.  
-![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/jenkins_param.gif "Jenkins job") 
 
 ## Kibana dashboard for jmeter tests
 -----------
 For performance monitoring to kibana dashboad added.
 Here some screenshots of vizualizations.
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/kibana_dashboard_jmeter.gif "Kibana dashboard for jmeter")
+
+-----------
+On the .gif you can see some dashboards
+- Jmeter_controls. Filters to choose **Transaction name**, **Response code**, **CSV_File**
+- Jmeter_average. Average response time of all transactions. If you choose in jmeter-controls **Transaction name** the average response will filter for choosen transaction.
+- Jmeter_percentiles. Percentiles of response time.
+- Jmeter_Errors_Num. Show number of errors in the performance test. 
+- Jmeter_Data_Table. Show aggregate table metrics for each transactions.
+- Jmeter_Response_Codes. Show response codes for all transactions.
+- Jmeter_Response_Codes_Series. Show count of response codes depends on time.
+- Jmeter_Response_Time_Percentiles. Show response percentiles.
+- Jmeter_Count_vs_Average. Average response time distribution for each transaction.
+- Jmeter_Response_Active_Threads. Average response time with number of active threads.
+- Jmeter_Throughput. Number of transactions per time metric.
+- Jmeter_Bytes. Number of received bytes.
+-----------
+You can add another visualizations to dashboard or create your own based on **jmeter** index.
+
 
 [2]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [3]: https://github.com/youketero/Performance_Framework
