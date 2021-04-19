@@ -112,9 +112,10 @@ Also you can add your own parameters to pipeline and performance script and cust
 For performance monitoring to kibana dashboad added.
 Here some screenshots of vizualizations.
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/kibana_dashboard_jmeter.gif "Kibana dashboard for jmeter")
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/jmeter_vid.mkv "Kibana dashboard for jmeter")
 
 -----------
-On the .gif you can see some dashboards
+On the .gif you can see some vizualizations
 - Jmeter_controls. Filters to choose **Transaction name**, **Response code**, **CSV_File**
 - Jmeter_average. Average response time of all transactions. If you choose in jmeter-controls **Transaction name** the average response will filter for choosen transaction.
 - Jmeter_percentiles. Percentiles of response time.
@@ -128,7 +129,7 @@ On the .gif you can see some dashboards
 - Jmeter_Throughput. Number of transactions per time metric.
 - Jmeter_Bytes. Number of received bytes.
 -----------
-You can add another visualizations to dashboard or create your own based on **jmeter** index.
+You can add another vizualizations to dashboard or create your own based on **jmeter** index.
 
 
 [2]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
