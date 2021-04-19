@@ -3,7 +3,7 @@
 ### Appendix 
 [Preconfiguration](https://github.com/youketero/Performance_Framework#preconfigurationoptional-but-preferable)  
 [Installing](https://github.com/youketero/Performance_Framework#installing)  
-[Framework architecture](https://github.com/youketero/Performance_Framework#framework-architecture) 
+[Framework architecture](https://github.com/youketero/Performance_Framework#framework-architecture)   
 [How to load Flask app](https://github.com/youketero/Performance_Framework#how-to-load-flask-app)   
 
 ## Preconfiguration(optional but preferable)
@@ -37,7 +37,7 @@ After building and creating containers services have such adresses and ports:
 - Kibana: localhost:5601
 - Portainer: localhost:9000
 - Flask app: localhost:5000
-4. Navigate to jenkins(Login: admin, Password: admin).
+4. Navigate to jenkins(Login: admin, Password: admin, **localhost:8080**).
 + If you want to use github(by default basic scipts download from github repository) add credentials by this path **options->credentials**
 By default in jenkins you can see one job - gatling. It is gatling tests based on **Gradle builder + gatling**
 Job used pipeline script(Type of pipeline: scripted). 
@@ -53,7 +53,7 @@ Job used pipeline script(Type of pipeline: scripted).
 + Paste into pipeline script.
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/pipeline_script.jpg "Pipeline script")
 + If you want to know more about pipeline scripting you may read more [here][4]
-5. Navigate to kibana.
+5. Navigate to kibana(**localhost:5601**).
 + You need to add dashboard. 
 + Open **Settings**. 
 + Open **Saved objects**.  
@@ -61,7 +61,7 @@ Job used pipeline script(Type of pipeline: scripted).
 + Click **import** and choose file in path(framework_path/kibana/gatling.ndjson or framework_path/kibana/jmeter.ndjson)  
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/Import_kibana.jpg "Import") 
 + After that check that you have all indices.
-+ Select index management. And check that you have **gatling** index  
++ Select index management. And check that you have **gatling** or **jmeter** index  
 ![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/Index_kibana.jpg "Index kibana") 
 6. Run performance script to check that the framework works.
 
@@ -90,6 +90,7 @@ Framework consist of such aplications:
 
 
 ## How to load Flask app
+----------
 1. Open command line and write command  
 ```
 ipconfig
@@ -97,6 +98,12 @@ ipconfig
 2. Copy IP address and add port 5000. The final address is: YOUR_IP:5000
 3. Add to your jmeter or gatling this address.
 4. Done
+
+## Kibana dashboard for jmeter tests
+-----------
+For performance monitoring to kibana dashboad added.
+Here some screenshots of vizualizations.
+![alt-текст](https://github.com/youketero/Performance_Framework/blob/main/img/kibana_dashboard_jmeter.gif "Kibana dashboard for jmeter")
 
 [2]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [3]: https://github.com/youketero/Performance_Framework
