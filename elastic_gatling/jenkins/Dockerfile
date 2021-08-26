@@ -2,7 +2,7 @@ FROM jenkins/jenkins:latest
 
 ARG JOB_NAME=gatling
   
-ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Dhudson.model.DirectoryBrowserSupport.CSP=''"
+ENV JAVA_OPTS="-Dpermissive-script-security.enabled=true -Djenkins.install.runSetupWizard=false -Dhudson.model.DirectoryBrowserSupport.CSP=''"
 
 RUN mkdir -p /var/jenkins_home/workspace/${JOB_NAME} && mkdir -p /var/jenkins_home/jobs/${JOB_NAME} 
 COPY /jobs/${JOB_NAME}.xml /var/jenkins_home/jobs/${JOB_NAME}/config.xml
