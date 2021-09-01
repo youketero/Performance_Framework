@@ -119,12 +119,12 @@
         ]
     )
 
-node(&quot;master&quot;){
+node{
     stage(&quot;delete workspace&quot;){
 		deleteDir()
 	}
     stage(&quot;download repository&quot;){
-        git credentialsId: &apos;a1886ed6-d0b5-4f69-8cc3-342b9990ce31&apos;, url: &apos;https://github.com/youketero/Graddle.git&apos;
+        git branch: &apos;master&apos;, url: &apos;https://github.com/youketero/Graddle.git&apos;
     }
 	
 	stage(&quot;Run gatling test&quot;){
