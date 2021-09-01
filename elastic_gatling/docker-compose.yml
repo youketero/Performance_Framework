@@ -78,7 +78,7 @@ services:
     volumes:
       - docker-dind:/usr/local/bin/dind/
       - /var/run/docker.sock:/var/run/docker.sock
-      - jenkins-home:/var/jenkins_home 
+      - jenkins-home:/var/jenkins_home
   portainer:
     image: portainer/portainer
     container_name: elastic-portainer
