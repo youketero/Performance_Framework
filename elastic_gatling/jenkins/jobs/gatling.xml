@@ -78,6 +78,16 @@
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
+		<hudson.model.ChoiceParameterDefinition>
+          <name>IMPORT_DASHBOARD</name>
+          <description>Select site to be tested</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>YES</string>
+              <string>NO</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -113,7 +123,8 @@
                 choice(
                     choices: [&apos;Flask&apos;], 
                     description: &apos;Select site to be tested&apos;, 
-                    name: &apos;Configuration&apos;)    
+                    name: &apos;Configuration&apos;),
+				choice(choices: [&apos;YES&apos;, &apos;NO&apos;], name: &apos;IMPORT_DASHBOARD&apos;)
                 ]
             )
         ]
@@ -121,7 +132,10 @@
 
 node{
     stage(&quot;delete workspace&quot;){
-		deleteDir()
+		deleteDir();
+		if(&quot;${IMPORT_DASHBOARD}&quot;==&quot;YES&quot;){
+            sh &apos;curl -X POST elastic-apm-kibana:5601/api/saved_objects/_import -H &quot;kbn-xsrf: true&quot; --form file=@/var/gatling.ndjson&apos;
+        };
 	}
     stage(&quot;download repository&quot;){
         git branch: &apos;master&apos;, url: &apos;https://github.com/youketero/Graddle.git&apos;
@@ -171,9 +185,11 @@ node{
 
 
 def getKibanaDashboardUrl(startDateString, endDateString){
+    def response = sh(script:&apos;curl -X GET elastic-apm-kibana:5601/api/saved_objects/_find?type=dashboard&apos;, returnStdout: true)
+    def result = (response =~ &apos;dashboard&quot;,&quot;id&quot;:&quot;(.{36})&quot;,&quot;attr&apos;).findAll()
     start = URLEncoder.encode(startDateString,&quot;UTF-8&quot;)
     end = URLEncoder.encode(endDateString,&quot;UTF-8&quot;)
-    return &quot;http://localhost:5601/app/kibana#/dashboard/ef5bbb20-9d21-11eb-a39c-890bb52878b8?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:&apos;${start}&apos;,to:&apos;${end}&apos;))&quot;
+    return &quot;http://localhost:5601/app/kibana#/dashboard/&quot; + result[0].get(1) + &quot;?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:&apos;${start}&apos;&apos;,to:&apos;${end}&apos;))&quot;
 }
 
 def getKibanaMetricBeatUrl(){

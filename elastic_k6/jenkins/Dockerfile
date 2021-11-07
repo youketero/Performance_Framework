@@ -1,13 +1,13 @@
 FROM jenkins/jenkins:latest
 
-ARG JOB_NAME=jmeter
+ARG JOB_NAME=k6
   
 ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Dhudson.model.DirectoryBrowserSupport.CSP=''"
 
 RUN mkdir -p /var/jenkins_home/workspace/${JOB_NAME} && mkdir -p /var/jenkins_home/jobs/${JOB_NAME} 
 COPY /jobs/${JOB_NAME}.xml /var/jenkins_home/jobs/${JOB_NAME}/config.xml
 RUN mkdir -p /var/jenkins_home/jobs/${JOB_NAME}/latest/ && mkdir -p /var/jenkins_home/jobs/${JOB_NAME}/builds/1/ 
-
+  
 COPY ${JOB_NAME}.ndjson /var
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
