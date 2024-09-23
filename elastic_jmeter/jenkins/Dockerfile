@@ -10,7 +10,7 @@ RUN mkdir -p /var/jenkins_home/jobs/${JOB_NAME}/latest/ && mkdir -p /var/jenkins
 
 COPY ${JOB_NAME}.ndjson /var
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
-RUN /usr/local/bin/plugins.sh < /usr/share/jenkins/ref/plugins.txt
+RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
 ENV CASC_JENKINS_CONFIG /var/jenkins_home/casc.yaml
 
 USER root
