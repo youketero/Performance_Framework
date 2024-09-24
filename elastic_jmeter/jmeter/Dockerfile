@@ -22,7 +22,7 @@ COPY elasticapm.properties ${JMETER_HOME}/bin/
 COPY elastic-apm-agent-1.15.0.jar ${JMETER_HOME}/bin/
 
 COPY entrypoint.sh /
-
+RUN chmod a+x ./entrypoint.sh
 WORKDIR	${JMETER_HOME}
 
 ENTRYPOINT ["/entrypoint.sh"]
