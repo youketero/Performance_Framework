@@ -28,7 +28,7 @@
 ##   ==============================================
 
 # Minimal version to run JMeter
-MINIMAL_VERSION=1.8.0
+MINIMAL_VERSION=11
 JVM_ARGS="-javaagent:elastic-apm-agent-1.15.0.jar  -Delastic.apm.config_file=elasticapm.properties"
 # Check if Java is present and the minimal version requirement
 _java=`type java | awk '{ print $ NF }'`
