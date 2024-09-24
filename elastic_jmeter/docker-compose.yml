@@ -69,7 +69,6 @@ services:
     container_name: docker-dind
     privileged: true
   jenkins:
-    image: jenkins/jenkins
     build: ./jenkins
     depends_on:
       - docker-dind     
@@ -84,7 +83,6 @@ services:
   jmeter:
     container_name: jmeter
     build: ./jmeter
-    image: "openjdk:11"
     entrypoint:
       - cat  
   portainer:
