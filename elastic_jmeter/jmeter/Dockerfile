@@ -1,4 +1,4 @@
-FROM java:8-jdk
+FROM openjdk:11
 
 ARG JMETER_VERSION="5.1"
 ENV JMETER_HOME /opt/apache-jmeter-${JMETER_VERSION}
