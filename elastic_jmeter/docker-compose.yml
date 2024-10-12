@@ -84,7 +84,13 @@ services:
     container_name: jmeter
     build: ./jmeter
     entrypoint:
-      - cat
+      - "#!/bin/bash
+while true
+do
+    echo "Press [CTRL+C] to stop.."
+    sleep 60
+done
+"
     volumes:
       - jmeter-bin:/opt/apache-jmeter-5.1/bin/results 
 volumes:
