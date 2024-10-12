@@ -86,7 +86,8 @@ services:
       mode: replicated
       replicas: 2
     volumes:
-      - jmeter-bin:/opt/apache-jmeter-5.1/bin/results 
+      - jmeter-bin:/opt/apache-jmeter-5.1/bin/results
+      - /opt/apache-jmeter-5.1/bin/jenkins_jobs:/var/jenkins_home/jobs
 volumes:
     docker-dind:
     jenkins-home:
