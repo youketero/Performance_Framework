@@ -78,7 +78,7 @@ services:
     volumes:
       - docker-dind:/usr/local/bin/dind/
       - /var/run/docker.sock:/var/run/docker.sock
-      - jenkins-home:/var/jenkins_home 
+      - jenkins-home:/var/jenkins_home/jobs 
     restart: always
   jmeter:
     build: ./jmeter
@@ -87,7 +87,7 @@ services:
       replicas: 2
     volumes:
       - jmeter-bin:/opt/apache-jmeter-5.1/bin/results
-      - /opt/apache-jmeter-5.1/bin/jenkins_jobs:/var/jenkins_home/jobs
+      - jenkins-home:/opt/apache-jmeter-5.1/bin/jenkins_jobs
 volumes:
     docker-dind:
     jenkins-home:
