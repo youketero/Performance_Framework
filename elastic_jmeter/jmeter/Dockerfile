@@ -7,7 +7,7 @@ ENV	JMETER_DOWNLOAD_URL  https://archive.apache.org/dist/jmeter/binaries/apache-
 
 # download and extract JMeter
 RUN mkdir /tmp/dependencies
-RUN mkdir /results
+RUN mkdir /opt/apache-jmeter-5.1/results
 RUN	curl -L --silent ${JMETER_DOWNLOAD_URL} > /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz
 
 RUN tar -xzf /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz -C /opt && \
