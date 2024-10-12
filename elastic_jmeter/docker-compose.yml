@@ -84,7 +84,9 @@ services:
     container_name: jmeter
     build: ./jmeter
     entrypoint:
-      - cat  
+      - cat
+    volumes:
+      - jmeter-bin:/opt/apache-jmeter-5.1/bin 
 volumes:
     docker-dind:
     jenkins-home:
