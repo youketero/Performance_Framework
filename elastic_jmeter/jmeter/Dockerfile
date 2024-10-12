@@ -8,13 +8,12 @@ ENV	JMETER_DOWNLOAD_URL  https://archive.apache.org/dist/jmeter/binaries/apache-
 # download and extract JMeter
 RUN mkdir /tmp/dependencies
 RUN	curl -L --silent ${JMETER_DOWNLOAD_URL} > /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz
-RUN mkdir /opt/apache-jmeter-5.1/results
 RUN tar -xzf /tmp/dependencies/apache-jmeter-${JMETER_VERSION}.tgz -C /opt && \
     rm -rf /tmp/dependencies
 
 # Set global PATH such that "jmeter" command is found
 ENV PATH $PATH:$JMETER_BIN
-
+RUN mkdir /opt/apache-jmeter-5.1/results
 COPY plugins/lib/*.jar ${JMETER_HOME}/lib/
 COPY plugins/lib/ext/*.jar ${JMETER_HOME}/lib/ext/
 COPY jmeter.sh ${JMETER_HOME}/bin/
