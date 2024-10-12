@@ -81,7 +81,6 @@ services:
       - jenkins-home:/var/jenkins_home 
     restart: always
   jmeter:
-    container_name: jmeter
     build: ./jmeter
     deploy:
       mode: replicated
