@@ -83,8 +83,6 @@ services:
   jmeter:
     container_name: jmeter
     build: ./jmeter
-    entrypoint:
-      - /opt/apache-jmeter-5.1/entrypoint.sh
     volumes:
       - jmeter-bin:/opt/apache-jmeter-5.1/bin/results 
 volumes:
