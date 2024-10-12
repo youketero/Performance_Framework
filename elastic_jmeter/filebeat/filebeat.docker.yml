@@ -2,14 +2,14 @@ filebeat.inputs:
   - type: log
     enabled: true
     paths:
-      - jmeter/report*.csv  
+      - /jmeter/report*.csv  
     fields: 
        type: test_log_csv  
     fields_under_root: true   
   - type: log
     enabled: true
     paths:
-      - jmeter/jmeter*.log
+      - /jmeter/jmeter*.log
     fields:
         type: test_log_jmeter
     fields_under_root: true    
