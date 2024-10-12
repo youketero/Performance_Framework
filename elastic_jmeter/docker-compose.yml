@@ -54,7 +54,7 @@ services:
     volumes:
       - ./filebeat/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro
       - ./elastic/filebeat/log:/var/log/filebeat
-      - ../jmeter/results/:/usr/share/jmeter/
+      - jmeter-bin:/usr/share/jmeter/
       - jenkins-home:/usr/share/jmeter-csv/
     environment:
       - KIBANA_HOST=kibana:5601
