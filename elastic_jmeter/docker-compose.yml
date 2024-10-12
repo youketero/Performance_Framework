@@ -83,6 +83,9 @@ services:
   jmeter:
     container_name: jmeter
     build: ./jmeter
+    deploy:
+      mode: replicated
+      replicas: 2
     volumes:
       - jmeter-bin:/opt/apache-jmeter-5.1/bin/results 
 volumes:
