@@ -1,0 +1,82 @@
+# Persistent Volume Claim для Jenkins Home
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jenkins-pvc
+  namespace: performance
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+# ServiceAccount з правами на деплой у кластері
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: performance
+---
+# ClusterRoleBinding для Jenkins
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jenkins-admin
+subjects:
+  - kind: ServiceAccount
+    name: jenkins
+    namespace: performance
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+# Deployment Jenkins
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: performance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      serviceAccountName: jenkins
+      containers:
+        - name: jenkins
+          image: youketero/jenkins-agent:k8s
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: CASC_JENKINS_CONFIG
+              value: /var/jenkins_home/casc.yaml
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+      volumes:
+        - name: jenkins-home
+          persistentVolumeClaim:
+            claimName: jenkins-pvc
+---
+# Service для доступу до Jenkins
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins
+  namespace: performance
+spec:
+  type: NodePort
+  selector:
+    app: jenkins
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30080

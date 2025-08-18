@@ -1,0 +1,19 @@
+jenkins:
+  systemMessage: "Jenkins запущений через CASC"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          password: admin
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "Overall/Administer:admin"
+        - "Overall/Read:authenticated"
+  remotingSecurity:
+    enabled: true
+unclassified:
+  location:
+    url: http://localhost:8080/

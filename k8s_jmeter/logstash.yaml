@@ -1,0 +1,88 @@
+apiVersion: logstash.k8s.elastic.co/v1alpha1
+kind: Logstash
+metadata:
+  name: logstash-sample
+  namespace: performance
+spec:
+  version: 8.13.4
+  count: 1
+  config:
+    log.level: info
+    api.http.host: "0.0.0.0"
+    queue.type: memory
+  elasticsearchRefs:
+    - clusterName: quickstart
+      name: quickstart
+  pipelines:
+    - pipeline.id: main
+      config.string: | 
+        input {
+          beats {
+            port => 5044
+            host => "0.0.0.0"
+          }
+        }
+        filter {
+            if "test_log_csv" in [type]{
+                csv {
+                    separator => ","
+                    skip_header => "true"
+                    columns => ["timeStamp","elapsed","label","responseCode","responseMessage","threadName","dataType","success","failureMessage","bytes","sentBytes","grpThreads","allThreads","URL","Latency","IdleTime","Connect"]
+                }
+                mutate{
+                    convert => {
+                          "timeStamp" => "integer"
+                          "elapsed" => "integer"
+                          "responseCode" => "integer"
+                          "success" => "boolean"
+                          "bytes" => "integer"
+                          "sentBytes"=> "integer"
+                          "grpThreads"=> "integer"
+                          "allThreads"=> "integer"
+                          "Latency" => "integer"
+                          "IdleTime" => "integer"
+                          "Connect" => "integer"
+                        }
+                }
+            }
+            if "test_log_jmeter" in [type]{
+                grok {
+                   match => { "message" => "%{DATA:message}" }
+                       }
+                    }
+                }
+                    
+                output {
+                  if "test_log_csv" in [type] {
+                    elasticsearch {
+                      hosts => ["${QUICKSTART_ES_HOSTS}"]
+                      user => "${QUICKSTART_ES_USER}"
+                      password => "${QUICKSTART_ES_PASSWORD}"
+                      ssl_certificate_authorities => "${QUICKSTART_ES_SSL_CERTIFICATE_AUTHORITY}"
+                      manage_template => true
+                      index => "jmeter_csv"
+                    }
+                    stdout { codec => json }
+                  }
+                  if "test_log_jmeter" in [type] {
+                    elasticsearch {   
+                      hosts => ["${QUICKSTART_ES_HOSTS}"]
+                      user => "${QUICKSTART_ES_USER}"
+                      password => "${QUICKSTART_ES_PASSWORD}"
+                      ssl_certificate_authorities => "${QUICKSTART_ES_SSL_CERTIFICATE_AUTHORITY}"
+                      manage_template => true
+                      index => "jmeter_log"
+                    }
+                    stdout { codec => json }
+                  }
+                }
+  services:
+     - name: beats
+       service:
+         spec:
+           type: NodePort
+           ports:
+            - port: 5044
+              name: "filebeat"
+              protocol: TCP
+              targetPort: 5044 

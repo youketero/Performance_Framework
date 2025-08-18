@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: logstash-roles-secret
+  namespace: performance
+stringData:
+  roles.yml: |-
+    eck_logstash_user_role:
+      cluster: 
+        - monitor
+        - manage_index_templates
+        - cluster:admin/ingest/pipeline/get
+      indices:
+        - names: [ "jmeter_*", "logstash", "logstash-*", "my-index*", "ecs-logstash*", "logs-*", "metrics-*", "synthetics-*", "traces-*" ]
+          privileges: 
+            - create_index
+            - write
+            - manage
+            - read
+            - view_index_metadata
+            - auto_configure
+
+
+---
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: quickstart
+  namespace: performance
+spec:
+  version: 8.13.4
+  auth:
+    roles:
+      - secretName: logstash-roles-secret
+  nodeSets:
+  - name: default
+    count: 1
+    config:
+      node.store.allow_mmap: false

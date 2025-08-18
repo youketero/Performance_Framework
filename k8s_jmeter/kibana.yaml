@@ -1,0 +1,17 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: quickstart
+  namespace: performance
+spec:
+  version: 8.13.4
+  count: 1
+  elasticsearchRef:
+    name: quickstart
+  http:
+    service:
+      spec:
+        type: NodePort       # робимо сервіс NodePort для доступу з Docker Desktop
+        ports:
+          - port: 5601
+            nodePort: 32343  # стабільний порт для доступу з браузера
