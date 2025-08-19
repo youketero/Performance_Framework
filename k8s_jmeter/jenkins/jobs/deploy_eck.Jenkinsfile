@@ -24,13 +24,6 @@ pipeline {
                 script {
                     echo 'Recreating performance namespace...'
                     def exists = sh(script: "kubectl get ns | grep performance || true", returnStdout: true).trim()
-                    if (exists) {
-                        echo "Namespace performance exists, deleting..."
-                        sh 'kubectl delete ns performance --ignore-not-found=true'
-                        sleep 10
-                    } else {
-                        echo "No existing namespace performance found"
-                    }
                     dir('k8s_jmeter') {
                         sh 'kubectl apply -f namespace.yaml'
                     }
