@@ -109,6 +109,26 @@ kubectl -n "${namespace}" delete -f jmeter_m.yaml -f jmeter_s.yaml 2> /dev/null
 ls -laht
 kubectl -n "${namespace}" apply -f jmeter_m.yaml
 kubectl -n "${namespace}" apply -f jmeter_s.yaml
-# kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
-# logit "INFO" "Waiting for all slaves pods to be terminated before recreating the pod set"
-# while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "" ]]; do echo "$(kubectl -n ${namespace} get pods -l jmeter_mode=slave )" && sleep 1; done
+kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
+logit "INFO" "Waiting for all slaves pods to be terminated before recreating the pod set"
+while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "" ]]; do echo "$(kubectl -n ${namespace} get pods -l jmeter_mode=slave )" && sleep 1; done
+
+
+# Starting jmeter slave pod 
+if [ -z "${nb_injectors}" ]; then
+    logit "WARNING" "Keeping number of injector to 1"
+    kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":1}}'
+else
+    logit "INFO" "Scaling the number of pods to ${nb_injectors}. "
+    kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":'${nb_injectors}'}}'
+    logit "INFO" "Waiting for pods to be ready"
+
+    end=${nb_injectors}
+    for ((i=1; i<=end; i++))
+    do
+        validation_string=${validation_string}"True"
+    done
+
+    while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | sed 's/ //g') != "${validation_string}" ]]; do echo "$(kubectl -n ${namespace} get pods -l jmeter_mode=slave )" && sleep 1; done
+    logit "INFO" "Finish scaling the number of pods."
+fi
