@@ -45,7 +45,6 @@ pipeline {
                           kubectl delete -f https://download.elastic.co/downloads/eck/3.1.0/crds.yaml || true
                           kubectl delete ns elastic-system --ignore-not-found=true
                         '''
-                        // іноді CRD лишаються, чистимо вручну
                         sh '''
                           kubectl delete crd elasticsearches.elasticsearch.k8s.elastic.co --ignore-not-found=true
                           kubectl delete crd kibanas.kibana.k8s.elastic.co --ignore-not-found=true
