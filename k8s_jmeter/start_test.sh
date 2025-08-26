@@ -203,3 +203,7 @@ do
         kubectl cp -c jmslave "${INJ_PATH}" -n "${namespace}" "${slave_pods[$i]}:${JMETER_DIR}"
         #kubectl exec -c jmslave -i -n "${namespace}" "${slave_pods[$i]}" -- //bin/bash "/opt/jmeter/jmeter_injector_start" &  
 done
+
+slave_list=$(kubectl -n ${namespace} describe endpoints jmeter-slaves-svc | grep ' Addresses' | awk -F" " '{print $2}')
+logit "INFO" "JMeter slave list : ${slave_list}"
+slave_array=($(echo ${slave_list} | sed 's/,/ /g'))
