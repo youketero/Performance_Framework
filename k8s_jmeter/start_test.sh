@@ -207,3 +207,30 @@ done
 slave_list=$(kubectl -n ${namespace} get endpoints jmeter-slaves-svc -o jsonpath='{.subsets[*].addresses[*].ip}')
 echo $slave_list
 slave_array=($(echo ${slave_list} | sed 's/,/ /g'))
+echo $slave_array
+
+if [ -n "${enable_report}" ]; then
+    report_command_line="--reportatendofloadtests --reportoutputfolder /report/report-${jmx}-$(date +"%F_%H%M%S")"
+fi
+
+echo "slave_array=(${slave_array[@]}); index=${slave_num} && while [ \${index} -gt 0 ]; do for slave in \${slave_array[@]}; do if echo 'test open port' 2>/dev/null > /dev/tcp/\${slave}/1099; then echo \${slave}' ready' && slave_array=(\${slave_array[@]/\${slave}/}); index=\$((index-1)); else echo \${slave}' not ready'; fi; done; echo 'Waiting for slave readiness'; sleep 2; done" > "scenario/${jmx_dir}/load_test.sh"
+
+cat <<EOF >> "load_test.sh"
+echo "Installing needed plugins for master"
+cd /opt/jmeter/apache-jmeter/bin
+sh PluginsManagerCMD.sh install-for-jmx ${jmx}
+
+jmeter ${param_host} ${param_user} ${report_command_line} \
+  --logfile /jmeter/${jmx}_\$(date +"%F_%H%M%S").csv \
+  --nongui --testfile ${jmx} \
+  -Dserver.rmi.ssl.disable=true --remoteexit --remotestart ${slave_list} \
+  >> jmeter-master.out 2>> jmeter-master.err &
+
+trap 'kill -10 1' EXIT INT TERM
+wait
+EOF
+
+LOAD_TEST_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "load_test.sh" | head -n 1)
+
+logit "INFO" "Copying ${INJ_PATH} into  ${master_pod}:${JMETER_DIR}load_test.sh"
+kubectl cp -c jmmaster "${INJ_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}load_test.sh"
