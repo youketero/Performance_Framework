@@ -108,8 +108,14 @@ logit "INFO" "Recreating pod set"
 kubectl -n "${namespace}" delete -f jmeter_m.yaml -f jmeter_s.yaml 2> /dev/null
 ls -laht
 kubectl -n "${namespace}" apply -f jmeter_m.yaml
-while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=master -o 'jsonpath={..status.conditions[?(@.type=="Running")].status}' | sed 's/ //g') != "True" ]]; do echo "$(kubectl -n ${namespace} get pods -l jmeter_mode=master )" && sleep 1; done
+while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=master -o 'jsonpath={.items[0].status.phase}') != "Running" ]]; do
+  echo "Master pod is not ready yet..."
+  kubectl -n ${namespace} get pods -l jmeter_mode=master -o wide
+  sleep 2
+done
 
+echo "✅ Master pod is running:"
+kubectl -n ${namespace} get pods -l jmeter_mode=master -o wide
 kubectl -n "${namespace}" apply -f jmeter_s.yaml
 kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
 logit "INFO" "Waiting for all slaves pods to be terminated before recreating the pod set"
