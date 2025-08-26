@@ -232,5 +232,5 @@ EOF
 
 LOAD_TEST_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "load_test.sh" | head -n 1)
 
-logit "INFO" "Copying ${INJ_PATH} into  ${master_pod}:${JMETER_DIR}load_test.sh"
-kubectl cp -c jmmaster "${INJ_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}load_test.sh"
+logit "INFO" "Copying ${INJ_PATH} into  ${master_pod}:${JMETER_DIR}/load_test.sh"
+kubectl cp -c jmmaster "${INJ_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/load_test.sh"
