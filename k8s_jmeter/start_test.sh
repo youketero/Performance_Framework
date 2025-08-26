@@ -153,7 +153,7 @@ slave_digit="${#slave_num}"
 jmeter_directory="/opt/jmeter/apache-jmeter/bin"
 echo "${master_pod}:/opt/jmeter/apache-jmeter/bin/"
 logit "INFO" "Copying ${FILE_PATH} into ${master_pod}"
-kubectl cp -c jmmaster "${FILE_PATH}" -n "${namespace}" "${master_pod}:/opt/jmeter/apache-jmeter/bin/" &
+kubectl cp -c jmmaster "${FILE_PATH}" -n "${namespace}" "${master_pod}:/opt/jmeter/apache-jmeter*/bin/" &
 
 
 logit "INFO" "Installing needed plugins on slave pods"
