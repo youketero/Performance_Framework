@@ -27,8 +27,6 @@ metadata:
   labels:
     jmeter_mode: slave
 spec:
-  securityContext:
-    runAsUser: 0
   ttlSecondsAfterFinished: 60
   backoffLimit: 0
   parallelism: 0
@@ -37,6 +35,8 @@ spec:
       labels:
         jmeter_mode: slave
     spec:
+      securityContext:
+        runAsUser: 0
       containers:
       - name: jmslave
         image: youketero/jmeter:k8s
