@@ -28,7 +28,7 @@ metadata:
     jmeter_mode: slave
 spec:
   securityContext:
-    unAsUser: 0
+    runAsUser: 0
   ttlSecondsAfterFinished: 60
   backoffLimit: 0
   parallelism: 0
