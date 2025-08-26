@@ -93,11 +93,8 @@ for var in "${!required_vars[@]}"; do
     fi
 done
 
-FILE_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "Google_basic.jmx" | head -n 1)
-jmx_dir="${jmx%%.*}"
+FILE_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "${jmx}" | head -n 1)
 
-echo "${FILE_PATH}"
-echo "${jmx}"
 if [ ! -f "${FILE_PATH}" ]; then
     logit "ERROR" "Test script file was not found in scenario/${jmx_dir}/${jmx}"
     usage
@@ -156,13 +153,53 @@ logit "INFO" "Copying ${FILE_PATH} into ${master_pod}"
 for ((i=0; i<end; i++))
 do
     logit "INFO" "Copying scenario/${jmx_dir}/${jmx} to ${slave_pods[$i]}"
-	#kubectl exec -n "${namespace}" -c jmslave "${slave_pods[$i]}" -- chmod +w /opt/apache-jmeter-5.6.3/bin
     kubectl cp -c jmslave "${FILE_PATH}" -n "${namespace}" "${slave_pods[$i]}:${JMETER_DIR}/bin/" &
 done # for i in "${slave_pods[@]}"
 
-#kubectl exec -n "${namespace}" -c jmmaster "${master_pod}" -- chmod +w ${JMETER_DIR}
 kubectl cp -c jmmaster "${FILE_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/bin/"
 
+{
+    echo "cd ${JMETER_DIR}"
+    echo "sh PluginsManagerCMD.sh install-for-jmx ${jmx} > plugins-install.out 2> plugins-install.err"
+    echo "jmeter-server -Dserver.rmi.localport=50000 -Dserver_port=1099 -Jserver.rmi.ssl.disable=true >> jmeter-injector.out 2>> jmeter-injector.err &"
+    echo "trap 'kill -10 1' EXIT INT TERM"
+    #echo "java -jar /opt/jmeter/apache-jmeter/lib/jolokia-java-agent.jar start JMeter >> jmeter-injector.out 2>> jmeter-injector.err"
+    echo "wait"
+} > "jmeter_injector_start.sh"
 
-
+INJ_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "jmeter_injector_start.sh" | head -n 1)
 logit "INFO" "Installing needed plugins on slave pods"
+
+if [ -n "${csv}" ]; then
+    logit "INFO" "Splitting and uploading csv to pods"
+    dataset_dir="./data"
+
+    for csvfilefull in "${dataset_dir}"/*.csv; do
+        csvfile="${csvfilefull##*/}"
+        logit "INFO" "Processing file: $csvfile"
+        
+        lines_total=$(wc -l < "${csvfilefull}")
+        lines_per_split=$(( (lines_total + slave_num - 1) / slave_num ))  # округлення вгору
+        logit "INFO" "Splitting ${csvfile} into $slave_num parts, $lines_per_split lines each"
+
+        split --suffix-length="${slave_digit}" -d -l "$lines_per_split" "${csvfilefull}" "${csvfilefull}."
+
+        for ((i=0; i<slave_num; i++)); do
+            j=$(printf "%0${slave_digit}d" "$i")
+            split_file="${csvfilefull}.${j}"
+            logit "INFO" "Copying ${split_file} to ${slave_pods[$i]}:${jmeter_directory}/${csvfile}"
+            kubectl -n "${namespace}" cp -c jmslave "$split_file" "${slave_pods[$i]}":"${JMETER_DIR}/${csvfile}" &
+        done
+    done
+    wait
+    logit "INFO" "Finished uploading CSV files to all slaves"
+fi
+
+wait
+
+for ((i=0; i<end; i++))
+do
+        logit "INFO" "Starting jmeter server on ${slave_pods[$i]} in parallel"
+        kubectl cp -c jmslave "${INJ_PATH}" -n "${namespace}" "${slave_pods[$i]}:${JMETER_DIR}"
+        #kubectl exec -c jmslave -i -n "${namespace}" "${slave_pods[$i]}" -- //bin/bash "/opt/jmeter/jmeter_injector_start" &  
+done
