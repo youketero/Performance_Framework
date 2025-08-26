@@ -104,9 +104,9 @@ jmx_dir="${jmx%%.*}"
 
 # Recreating each pods
 logit "INFO" "Recreating pod set"
-kubectl -n "${namespace}" delete -f k8s_jmeter/jmeter_m.yaml -f k8s_jmeter/jmeter_s.yaml 2> /dev/null
-kubectl -n "${namespace}" apply -f k8s_jmeter/jmeter_m.yaml
-kubectl -n "${namespace}" apply -f k8s_jmeter/jmeter_s.yaml
+kubectl -n "${namespace}" delete -f jmeter_m.yaml -f jmeter_s.yaml 2> /dev/null
+kubectl -n "${namespace}" apply -f jmeter_m.yaml
+kubectl -n "${namespace}" apply -f jmeter_s.yaml
 # kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
 # logit "INFO" "Waiting for all slaves pods to be terminated before recreating the pod set"
 # while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "" ]]; do echo "$(kubectl -n ${namespace} get pods -l jmeter_mode=slave )" && sleep 1; done
