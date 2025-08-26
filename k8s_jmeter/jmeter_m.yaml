@@ -28,7 +28,7 @@ spec:
         jmeter_mode: master
     spec:
       securityContext:
-        runAsUser: 1000
+        runAsUser: 0
         fsGroup: 1000
       containers:
       - name: jmmaster
