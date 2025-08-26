@@ -98,7 +98,7 @@ jmx_dir="${jmx%%.*}"
 
 echo "${FILE_PATH}"
 echo "${jmx}"
-if [ ! -f "${FILE_PATH}/${jmx}" ]; then
+if [ ! -f "${FILE_PATH}" ]; then
     logit "ERROR" "Test script file was not found in scenario/${jmx_dir}/${jmx}"
     usage
 fi
