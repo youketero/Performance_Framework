@@ -93,13 +93,12 @@ for var in "${!required_vars[@]}"; do
     fi
 done
 
-
-
+FILE_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "Google_basic.jmx" | head -n 1)
 jmx_dir="${jmx%%.*}"
 
-echo "${jmx_dir}"
+echo "${FILE_PATH}"
 
-if [ ! -f "scenario/${jmx_dir}/${jmx}" ]; then
+if [ ! -f "${FILE_PATH}/${jmx}" ]; then
     logit "ERROR" "Test script file was not found in scenario/${jmx_dir}/${jmx}"
     usage
 fi
