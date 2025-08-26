@@ -132,3 +132,19 @@ else
     while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | sed 's/ //g') != "${validation_string}" ]]; do echo "$(kubectl -n ${namespace} get pods -l jmeter_mode=slave )" && sleep 1; done
     logit "INFO" "Finish scaling the number of pods."
 fi
+
+master_pod=$(kubectl get pod -n "${namespace}" | grep jmeter-master | awk '{print $1}')
+logit "INFO" "master_pod is ${master_pod}"
+
+slave_pods=($(kubectl get pods -n "${namespace}" | grep jmeter-slave | grep Running | awk '{print $1}'))
+slave_num=${#slave_pods[@]}
+slave_digit="${#slave_num}"
+
+# jmeter directory in pods
+jmeter_directory="/opt/jmeter/apache-jmeter/bin"
+
+logit "INFO" "Copying scenario/${jmx_dir}/${jmx} into ${master_pod}"
+kubectl cp -c jmmaster "scenario/${jmx_dir}/${jmx}" -n "${namespace}" "${master_pod}:/opt/jmeter/apache-jmeter/bin/" &
+
+
+logit "INFO" "Installing needed plugins on slave pods"
