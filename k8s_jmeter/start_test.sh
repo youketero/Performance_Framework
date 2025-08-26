@@ -234,3 +234,4 @@ LOAD_TEST_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "load_
 
 logit "INFO" "Copying ${INJ_PATH} into  ${master_pod}:${JMETER_DIR}/load_test.sh"
 kubectl cp -c jmmaster "${INJ_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/load_test.sh"
+kubectl exec -c jmmaster -i -n "${namespace}" "${master_pod}" -- //bin/bash "${JMETER_DIR}/load_test.sh"
