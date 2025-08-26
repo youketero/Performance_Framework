@@ -161,7 +161,8 @@ echo "namespace=${namespace}"
 echo "master_pod=${master_pod}"
 echo "JMETER_DIR=${JMETER_DIR}"
 
-kubectl cp -c jmmaster --no-preserve "${FILE_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/bin/"
+kubectl exec -n "${namespace}" -c jmmaster "${master_pod}" -- chmod +w /opt/apache-jmeter-5.6.3/bin
+kubectl cp -c jmmaster "${FILE_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/bin/"
 
 
 
