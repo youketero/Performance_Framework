@@ -133,6 +133,7 @@ else
     logit "INFO" "Finish scaling the number of pods."
 fi
 
+while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=master -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | sed 's/ //g') != "${validation_string}" ]]; do echo "$(kubectl -n ${namespace} get pods -l jmeter_mode=master )" && sleep 1; done
 master_pod=$(kubectl get pod -n "${namespace}" | grep jmeter-master | awk '{print $1}')
 logit "INFO" "master_pod is ${master_pod}"
 
