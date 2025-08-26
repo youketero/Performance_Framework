@@ -105,6 +105,7 @@ jmx_dir="${jmx%%.*}"
 # Recreating each pods
 logit "INFO" "Recreating pod set"
 kubectl -n "${namespace}" delete -f jmeter_m.yaml -f jmeter_s.yaml 2> /dev/null
+ls -laht
 kubectl -n "${namespace}" apply -f jmeter_m.yaml
 kubectl -n "${namespace}" apply -f jmeter_s.yaml
 # kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
