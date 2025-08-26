@@ -97,10 +97,12 @@ done
 
 jmx_dir="${jmx%%.*}"
 
-# if [ ! -f "scenario/${jmx_dir}/${jmx}" ]; then
-    # logit "ERROR" "Test script file was not found in scenario/${jmx_dir}/${jmx}"
-    # usage
-# fi
+echo "${jmx_dir}"
+
+if [ ! -f "scenario/${jmx_dir}/${jmx}" ]; then
+    logit "ERROR" "Test script file was not found in scenario/${jmx_dir}/${jmx}"
+    usage
+fi
 
 # Recreating each pods
 logit "INFO" "Recreating pod set"
