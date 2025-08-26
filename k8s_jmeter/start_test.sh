@@ -151,8 +151,8 @@ slave_digit="${#slave_num}"
 
 # jmeter directory in pods
 JMETER_DIR=$(kubectl exec -n "${namespace}" -c jmmaster "${master_pod}" -- sh -c "ls /opt/jmeter 2>/dev/null | grep apache-jmeter | head -n1")
+echo "$(kubectl exec -n "${namespace}" -c jmmaster "${master_pod}" -- sh -c "ls /opt/jmeter 2>/dev/null | grep apache-jmeter | head -n1")"
 
-echo "${master_pod}:/opt/jmeter/apache-jmeter/bin/"
 logit "INFO" "Copying ${FILE_PATH} into ${master_pod}"
 
 echo "FILE_PATH=${FILE_PATH}"
