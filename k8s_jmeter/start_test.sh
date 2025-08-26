@@ -151,17 +151,16 @@ slave_digit="${#slave_num}"
 
 # jmeter directory in pods
 JMETER_DIR=$(kubectl exec -n "${namespace}" -c jmmaster "${master_pod}" -- sh -c "find /opt -maxdepth 1 -type d -name 'apache-jmeter*' | head -n1")
-
-echo "$(kubectl exec -n "${namespace}" -c jmmaster "${master_pod}" -- sh -c "ls /opt/jmeter 2>/dev/null | grep apache-jmeter | head -n1")"
-
 logit "INFO" "Copying ${FILE_PATH} into ${master_pod}"
 
-echo "FILE_PATH=${FILE_PATH}"
-echo "namespace=${namespace}"
-echo "master_pod=${master_pod}"
-echo "JMETER_DIR=${JMETER_DIR}"
+for ((i=0; i<end; i++))
+do
+    logit "INFO" "Copying scenario/${jmx_dir}/${jmx} to ${slave_pods[$i]}"
+	#kubectl exec -n "${namespace}" -c jmslave "${slave_pods[$i]}" -- chmod +w /opt/apache-jmeter-5.6.3/bin
+    kubectl cp -c jmslave "${FILE_PATH}" -n "${namespace}" "${slave_pods[$i]}:${JMETER_DIR}/bin/" &
+done # for i in "${slave_pods[@]}"
 
-kubectl exec -n "${namespace}" -c jmmaster "${master_pod}" -- chmod +w /opt/apache-jmeter-5.6.3/bin
+#kubectl exec -n "${namespace}" -c jmmaster "${master_pod}" -- chmod +w ${JMETER_DIR}
 kubectl cp -c jmmaster "${FILE_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/bin/"
 
 
