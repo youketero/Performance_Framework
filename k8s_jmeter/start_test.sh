@@ -15,7 +15,7 @@ usage() {
     )
 
     for msg in "${messages[@]}"; do
-        logit "INFO" "$msg"
+        echo "$msg"
     done
 
     exit 1
