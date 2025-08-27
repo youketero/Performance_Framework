@@ -157,7 +157,7 @@ fi
 
 
 master_pod=$(kubectl get pod -n "${namespace}" | grep jmeter-master | awk '{print $1}')
-logit "INFO" "master_pod is ${master_pod}"
+echo "master_pod is ------------------> ${master_pod}"
 
 slave_pods=($(kubectl get pods -n "${namespace}" | grep jmeter-slave | grep Running | awk '{print $1}'))
 slave_num=${#slave_pods[@]}
