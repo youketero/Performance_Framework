@@ -132,16 +132,18 @@ else
     for ((i=1; i<=end; i++))
 
 	while true; do
-		ready=$(kubectl -n "$namespace" get deployment "$deployment" -o jsonpath='{.status.readyReplicas}')
-		replicas=$(kubectl -n "$namespace" get deployment "$deployment" -o jsonpath='{.spec.replicas}')
-		
-		if [[ "$ready" == "$replicas" ]]; then
-			echo "All $replicas pods are running and ready!"
-			break
-		else
-			kubectl -n "$namespace" get pods -l jmeter_mode=slave
-			sleep 2
+		ready_status=$(kubectl -n "$namespace" get deployment "$deployment" --no-headers)
+		# ready_status виглядає приблизно так: "jmeter-slaves 2/2 2 2 5m"
+		if [[ "$ready_status" == *"/"* ]]; then
+			ready=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f1)
+			total=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f2)
+			if [[ "$ready" == "$total" ]]; then
+				echo "All pods are ready!"
+				break
+			fi
 		fi
+		echo "$ready_status"
+		sleep 1
 	done
 
     echo "All slave pods are running!"logit "INFO" "Finish scaling the number of pods."
