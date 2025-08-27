@@ -222,8 +222,7 @@ do
 done
 
 slave_list=$(kubectl -n ${namespace} get endpoints jmeter-slaves-svc -o jsonpath='{.subsets[*].addresses[*].ip}')
-echo $slave_list
-
+slave_array=$(IFS=, ; echo "${slave_array[*]}")
 if [ -n "${enable_report}" ]; then
     report_command_line="--reportatendofloadtests --reportoutputfolder /report/report-${jmx}-$(date +"%F_%H%M%S")"
 fi
@@ -233,7 +232,7 @@ fi
 {   
     echo "chmod +x '${JMETER_DIR}/load_test.sh'"
     echo "trap 'exit 0' SIGUSR1"
-    echo "jmeter -n -t ${jmx} -l /jmeter/${jmx}_$(date +"%F_%H%M%S").csv -Dserver.rmi.ssl.disable=true --remoteexit --remotestart ${slave_list} >> jmeter-master.out 2>> jmeter-master.err &"
+    echo "jmeter -n -t ${jmx} -l /jmeter/${jmx}_$(date +"%F_%H%M%S").csv -Dserver.rmi.ssl.disable=true --remoteexit --remotestart ${slave_array} >> jmeter-master.out 2>> jmeter-master.err &"
     echo "wait"
 } > "load_test.sh"
 
