@@ -28,7 +28,7 @@ metadata:
   labels:
     jmeter_mode: slave
 spec:
-  replicas: 2  # можеш змінити кількість слейвів
+  replicas: 1  # можеш змінити кількість слейвів
   selector:
     matchLabels:
       jmeter_mode: slave

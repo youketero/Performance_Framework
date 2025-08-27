@@ -117,6 +117,12 @@ kubectl -n "${namespace}" apply -f jmeter_s.yaml
 # kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
 logit "INFO" "Waiting for all slaves pods to be terminated before recreating the pod set"
 
+while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={.items[0].status.phase}') != "Running" ]]; do
+  echo "Master pod is not ready yet..."
+  kubectl -n ${namespace} get pods -l jmeter_mode=slave -o wide
+  sleep 2
+done
+
 # Starting jmeter slave pod 
 if [ -z "${nb_injectors}" ]; then
     logit "WARNING" "Keeping number of injector to 1"
@@ -132,14 +138,14 @@ else
 	while true; do
 		ready_status=$(kubectl -n "$namespace" get deployment "$deployment" --no-headers)
 		# ready_status виглядає приблизно так: "jmeter-slaves 2/2 2 2 5m"
-		if [[ "$ready_status" == *"/"* ]]; then
-			ready=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f1)
-			total=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f2)
-			if [[ "$ready" == "$total" ]]; then
-				echo "All pods are ready!"
-				break
-			fi
+		ready=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f1)
+		total=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f2)
+		
+		if [ "$ready" -eq "$total" ]; then
+			echo "All pods are ready!"
+			break
 		fi
+
 		echo "$ready_status"
 		sleep 1
 	done
