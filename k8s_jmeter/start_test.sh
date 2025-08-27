@@ -136,7 +136,7 @@ else
     end=${nb_injectors}
     for ((i=1; i<=end; i++)); do
         while true; do
-            ready_status=$(kubectl -n "$namespace" get deployment "$deployment" --no-headers)
+            ready_status=$(kubectl -n "$namespace" get deployment "jmeter-slaves" --no-headers)
             # ready_status виглядає приблизно так: "jmeter-slaves 2/2 2 2 5m"
             ready=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f1)
             total=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f2)
