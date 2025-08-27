@@ -134,10 +134,27 @@ else
         validation_string=${validation_string}"True"
     done
 
-    while kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={.items[*].status.phase}' | grep -vq Running; do
-		kubectl -n ${namespace} get pods -l jmeter_mode=slave
-		sleep 1
-    done
+	while true; do
+		# отримуємо всі статуси
+		statuses=$(kubectl -n "$namespace" get pods -l jmeter_mode=slave -o 'jsonpath={.items[*].status.phase}')
+		
+		# перевіряємо, чи всі Running
+		all_running=true
+		for s in $statuses; do
+			if [[ "$s" != "Running" ]]; then
+				all_running=false
+				break
+			fi
+		done
+		
+		if $all_running; then
+			echo "All slave pods are running!"
+			break
+		else
+			kubectl -n "$namespace" get pods -l jmeter_mode=slave
+			sleep 1
+		fi
+	done
     echo "All slave pods are running!"logit "INFO" "Finish scaling the number of pods."
 fi
 
