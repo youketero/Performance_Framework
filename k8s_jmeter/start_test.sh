@@ -1,3 +1,28 @@
+#!/usr/bin/env bash
+
+#=== FUNCTION ================================================================
+#        NAME: logit
+# DESCRIPTION: Log into file and screen.
+# PARAMETER - 1 : Level (ERROR, INFO)
+#           - 2 : Message
+#
+#===============================================================================
+logit() {
+    local level="$1"
+    local msg="$2"
+    local color=""
+
+    case "$level" in
+        INFO)  color="\e[94m" ;;
+        WARN)  color="\e[93m" ;;
+        ERROR) color="\e[91m" ;;
+        *)     color="\e[0m" ;; # default
+    esac
+	
+    echo -e " [${color}${level}\e[0m] [ $(date '+%d-%m-%y %H:%M:%S') ] ${color}${msg}\e[0m"
+    [ "$level" = "WARN" ] && sleep 2
+}
+
 #=== FUNCTION ================================================================
 #        NAME: usage
 # DESCRIPTION: Helper of the function
@@ -58,7 +83,7 @@ declare -A required_vars=(
 
 for var in "${!required_vars[@]}"; do
     if [ -z "${!var}" ]; then
-        logit "ERROR" "${required_vars[$var]}"
+        echo "${required_vars[$var]}"
         usage
         # Специфічна дія для namespace
         if [ "$var" == "namespace" ] && [ -f "${PWD}/namespace_export" ]; then
@@ -90,7 +115,7 @@ echo "✅ Master pod is running:"
 kubectl -n ${namespace} get pods -l jmeter_mode=master -o wide
 kubectl -n "${namespace}" apply -f jmeter_s.yaml
 # kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
-logit "INFO" "Waiting for all slaves pods to be terminated before recreating the pod set"
+echo "Waiting for all slaves pods to be terminated before recreating the pod set"
 
 while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={.items[0].status.phase}') != "Running" ]]; do
   echo "Slave pod is not ready yet..."
@@ -159,7 +184,7 @@ kubectl cp -c jmmaster "${FILE_PATH}" -n "${namespace}" "${master_pod}:${JMETER_
 } > "jmeter_injector_start.sh"
 
 INJ_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "jmeter_injector_start.sh" | head -n 1)
-echo "Installing needed plugins on slave pods"
+logit "INFO" "Installing needed plugins on slave pods"
 
 if [ -n "${csv}" ]; then
     logit "INFO" "Splitting and uploading csv to pods"
