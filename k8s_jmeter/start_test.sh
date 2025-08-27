@@ -206,8 +206,6 @@ done
 
 slave_list=$(kubectl -n ${namespace} get endpoints jmeter-slaves-svc -o jsonpath='{.subsets[*].addresses[*].ip}')
 echo $slave_list
-slave_array=($(echo ${slave_list} | sed 's/,/ /g'))
-echo $slave_array
 
 if [ -n "${enable_report}" ]; then
     report_command_line="--reportatendofloadtests --reportoutputfolder /report/report-${jmx}-$(date +"%F_%H%M%S")"
@@ -218,7 +216,6 @@ echo "slave_array=(${slave_array[@]}); index=${slave_num} && while [ \${index} -
 cat <<EOF >> "load_test.sh"
 echo "Installing needed plugins for master"
 cd /opt/jmeter/apache-jmeter/bin
-sh PluginsManagerCMD.sh install-for-jmx ${jmx}
 
 jmeter ${param_host} ${param_user} ${report_command_line} \
   --logfile /jmeter/${jmx}_\$(date +"%F_%H%M%S").csv \
@@ -234,4 +231,7 @@ LOAD_TEST_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "load_
 
 logit "INFO" "Copying ${INJ_PATH} into  ${master_pod}:${JMETER_DIR}/load_test.sh"
 kubectl cp -c jmmaster "${INJ_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/load_test.sh"
-kubectl exec -c jmmaster -i -n "${namespace}" "${master_pod}" -- //bin/bash "${JMETER_DIR}/load_test.sh"
+kubectl exec -c jmmaster -i -n "${namespace}" "${master_pod}" -- //bin/bash "${JMETER_DIR}/load_test.sh" &
+
+logit "INFO" "Starting the performance test"
+logit "INFO" "${namespace} ${master_pod}"
