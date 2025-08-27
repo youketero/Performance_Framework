@@ -118,10 +118,11 @@ kubectl -n "${namespace}" apply -f jmeter_s.yaml
 logit "INFO" "Waiting for all slaves pods to be terminated before recreating the pod set"
 
 while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={.items[0].status.phase}') != "Running" ]]; do
-  echo "Master pod is not ready yet..."
+  echo "Slave pod is not ready yet..."
   kubectl -n ${namespace} get pods -l jmeter_mode=slave -o wide
   sleep 2
 done
+echo "✅ Slave pod is running:"
 
 # Starting jmeter slave pod 
 if [ -z "${nb_injectors}" ]; then
