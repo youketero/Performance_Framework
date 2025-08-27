@@ -116,7 +116,7 @@ kubectl -n ${namespace} get pods -l jmeter_mode=master -o wide
 kubectl -n "${namespace}" apply -f jmeter_s.yaml
 kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
 logit "INFO" "Waiting for all slaves pods to be terminated before recreating the pod set"
-while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={..status.conditions[?(@.type=="Running")].status}') != "${validation_string}" ]]; do echo "$(kubectl -n ${namespace} get pods -l jmeter_mode=slave )" && sleep 1; done
+while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={.items[0].status.phase}') != "Running" ]]; do echo "$(kubectl -n ${namespace} get pods -l jmeter_mode=slave )" && sleep 1; done
 
 
 # Starting jmeter slave pod 
