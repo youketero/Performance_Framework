@@ -47,7 +47,13 @@ spec:
         - name: MODE
           value: "SLAVE"
         command: ["/bin/bash"]
-        args: ["-c", "trap 'exit 0' SIGUSR1 && jmeter-server -Dserver.rmi.localport=50000"]
+        args:
+          - "/bin/bash"
+          - "-c"
+          - |
+            trap 'exit 0' SIGUSR1
+            JMETER_DIR=$(ls -d /opt/apache-jmeter-* | sort -V | tail -n1)
+            "$JMETER_DIR/bin/jmeter-server" -Dserver.rmi.localport=50000
         ports:
         - containerPort: 1099
         - containerPort: 50000
