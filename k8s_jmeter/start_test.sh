@@ -131,21 +131,12 @@ else
     end=${nb_injectors}
     for ((i=1; i<=end; i++))
 
-	while true; do
-		# скільки всього slave pod-ів
-		total=$(kubectl -n "$namespace" get pods -l jmeter_mode=slave --no-headers 2>/dev/null | wc -l)
-		
-		# скільки pod-ів уже Running
-		running=$(kubectl -n "$namespace" get pods -l jmeter_mode=slave --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l)
-		
-		if [[ "$total" -gt 0 && "$total" -eq "$running" ]]; then
-			echo "All $running slave pods are running!"
-			break
-		else
-			kubectl -n "$namespace" get pods -l jmeter_mode=slave
-			sleep 1
-		fi
+	while [[ $(kubectl -n "$namespace" get pods -l jmeter_mode=slave -o jsonpath='{range .items[*]}{.status.phase}{" "}{end}' | tr ' ' '\n' | grep -vc '^Running$') -ne 0 ]]; do
+		kubectl -n "$namespace" get pods -l jmeter_mode=slave
+		sleep 1
 	done
+
+	echo "All slave pods are running!"
 
     echo "All slave pods are running!"logit "INFO" "Finish scaling the number of pods."
 fi
