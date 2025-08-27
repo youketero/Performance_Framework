@@ -46,10 +46,6 @@ spec:
         env:
         - name: MODE
           value: "SLAVE"
-      command:
-        - /opt/apache-jmeter-*/bin/jmeter-server
-      args:
-        - -Dserver.rmi.localport=50000
         ports:
         - containerPort: 1099
         - containerPort: 50000
