@@ -134,24 +134,25 @@ else
     echo "Waiting for pods to be ready"
 
     end=${nb_injectors}
-    for ((i=1; i<=end; i++))
+    for ((i=1; i<=end; i++)); do
+        while true; do
+            ready_status=$(kubectl -n "$namespace" get deployment "$deployment" --no-headers)
+            # ready_status виглядає приблизно так: "jmeter-slaves 2/2 2 2 5m"
+            ready=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f1)
+            total=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f2)
 
-	while true; do
-		ready_status=$(kubectl -n "$namespace" get deployment "$deployment" --no-headers)
-		# ready_status виглядає приблизно так: "jmeter-slaves 2/2 2 2 5m"
-		ready=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f1)
-		total=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f2)
-		
-		if [ "$ready" -eq "$total" ]; then
-			echo "All pods are ready!"
-			break
-		fi
+            if [ "$ready" -eq "$total" ]; then
+                echo "All pods are ready!"
+                break
+            fi
 
-		echo "$ready_status"
-		sleep 1
-	done
+            echo "$ready_status"
+            sleep 1
+        done
+    done
 
-    echo "All slave pods are running!"logit "INFO" "Finish scaling the number of pods."
+    echo "All slave pods are running!"
+    logit "INFO" "Finish scaling the number of pods."
 fi
 
 
