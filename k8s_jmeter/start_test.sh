@@ -131,12 +131,18 @@ else
     end=${nb_injectors}
     for ((i=1; i<=end; i++))
 
-	while [[ $(kubectl -n "$namespace" get pods -l jmeter_mode=slave -o jsonpath='{range .items[*]}{.status.phase}{" "}{end}' | tr ' ' '\n' | grep -vc '^Running$') -ne 0 ]]; do
-		kubectl -n "$namespace" get pods -l jmeter_mode=slave
-		sleep 1
+	while true; do
+		ready=$(kubectl -n "$namespace" get deployment "$deployment" -o jsonpath='{.status.readyReplicas}')
+		replicas=$(kubectl -n "$namespace" get deployment "$deployment" -o jsonpath='{.spec.replicas}')
+		
+		if [[ "$ready" == "$replicas" ]]; then
+			echo "All $replicas pods are running and ready!"
+			break
+		else
+			kubectl -n "$namespace" get pods -l jmeter_mode=slave
+			sleep 2
+		fi
 	done
-
-	echo "All slave pods are running!"
 
     echo "All slave pods are running!"logit "INFO" "Finish scaling the number of pods."
 fi
