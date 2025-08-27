@@ -122,10 +122,10 @@ while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={.
 # Starting jmeter slave pod 
 if [ -z "${nb_injectors}" ]; then
     logit "WARNING" "Keeping number of injector to 1"
-    kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":1}}'
+    kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"replicas":1}}'
 else
     logit "INFO" "Scaling the number of pods to ${nb_injectors}. "
-    kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":'${nb_injectors}'}}'
+    kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"replicas":'${nb_injectors}'}}'
     logit "INFO" "Waiting for pods to be ready"
 
     end=${nb_injectors}
