@@ -169,7 +169,7 @@ logit "INFO" "Copying ${FILE_PATH} into ${master_pod}"
 
 for ((i=0; i<end; i++))
 do
-    logit "INFO" "Copying scenario/${jmx_dir}/${jmx} to ${slave_pods[$i]}"
+    logit "INFO" "Copying scenario /${jmx_dir}/${jmx} to ${slave_pods[$i]}"
     kubectl cp -c jmslave "${FILE_PATH}" -n "${namespace}" "${slave_pods[$i]}:${JMETER_DIR}/bin/" &
 done # for i in "${slave_pods[@]}"
 
@@ -177,7 +177,6 @@ kubectl cp -c jmmaster "${FILE_PATH}" -n "${namespace}" "${master_pod}:${JMETER_
 
 {
     echo "cd ${JMETER_DIR}"
-    echo "sh PluginsManagerCMD.sh install-for-jmx ${jmx} > plugins-install.out 2> plugins-install.err"
     echo "jmeter-server -Dserver.rmi.localport=50000 -Dserver_port=1099 -Jserver.rmi.ssl.disable=true >> jmeter-injector.out 2>> jmeter-injector.err &"
     echo "trap 'kill -10 1' EXIT INT TERM"
     #echo "java -jar /opt/jmeter/apache-jmeter/lib/jolokia-java-agent.jar start JMeter >> jmeter-injector.out 2>> jmeter-injector.err"
@@ -233,7 +232,7 @@ fi
 {   
     echo "chmod +x '${JMETER_DIR}/load_test.sh'"
     echo "trap 'exit 0' SIGUSR1"
-    echo "jmeter -n -t ${jmx} -l /jmeter/${jmx}_$(date +"%F_%H%M%S").csv -Dserver.rmi.ssl.disable=true --remoteexit --remotestart ${slave_list} >> jmeter-master.out 2>> jmeter-master.err &"
+    echo "jmeter -n -t ${JMETER_DIR}/bin/${jmx} -l /jmeter/${jmx}_$(date +"%F_%H%M%S").csv -Dserver.rmi.ssl.disable=true --remoteexit --remotestart ${slave_list} >> jmeter-master.out 2>> jmeter-master.err &"
     echo "wait"
 } > "load_test.sh"
 
