@@ -114,7 +114,7 @@ done
 echo "✅ Master pod is running:"
 kubectl -n ${namespace} get pods -l jmeter_mode=master -o wide
 kubectl -n "${namespace}" apply -f jmeter_s.yaml
-kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
+# kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
 logit "INFO" "Waiting for all slaves pods to be terminated before recreating the pod set"
 while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={.items[*].status.phase}') != "Running" ]]; do echo "$(kubectl -n ${namespace} get pods -l jmeter_mode=slave )" && sleep 1; done
 
@@ -130,18 +130,16 @@ else
 
     end=${nb_injectors}
     for ((i=1; i<=end; i++))
-    do
-        validation_string=${validation_string}"True"
-    done
-	
-	
+
 	while true; do
-		# отримуємо всі статуси pod-ів
-		statuses=$(kubectl -n "$namespace" get pods -l jmeter_mode=slave -o 'jsonpath={.items[*].status.phase}')
+		# скільки всього slave pod-ів
+		total=$(kubectl -n "$namespace" get pods -l jmeter_mode=slave --no-headers 2>/dev/null | wc -l)
 		
-		# перевіряємо, чи всі Running
-		if [[ $(echo $statuses | tr ' ' '\n' | grep -vc '^Running$') -eq 0 ]]; then
-			echo "All slave pods are running!"
+		# скільки pod-ів уже Running
+		running=$(kubectl -n "$namespace" get pods -l jmeter_mode=slave --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l)
+		
+		if [[ "$total" -gt 0 && "$total" -eq "$running" ]]; then
+			echo "All $running slave pods are running!"
 			break
 		else
 			kubectl -n "$namespace" get pods -l jmeter_mode=slave
