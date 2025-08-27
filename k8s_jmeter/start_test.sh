@@ -122,10 +122,10 @@ while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={.
 # Starting jmeter slave pod 
 if [ -z "${nb_injectors}" ]; then
     logit "WARNING" "Keeping number of injector to 1"
-    kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"replicas":1}}'
+    kubectl -n "${namespace}" patch deployment jmeter-slaves -p '{"spec":{"replicas":1}}'
 else
     echo "Scaling the number of pods to ${nb_injectors}. "
-    kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"replicas":'${nb_injectors}'}}'
+    kubectl -n "${namespace}" patch deployment jmeter-slaves -p '{"spec":{"replicas":'${nb_injectors}'}}'
     echo "Waiting for pods to be ready"
 
     end=${nb_injectors}
@@ -133,21 +133,14 @@ else
     do
         validation_string=${validation_string}"True"
     done
-
+	
+	
 	while true; do
-		# отримуємо всі статуси
+		# отримуємо всі статуси pod-ів
 		statuses=$(kubectl -n "$namespace" get pods -l jmeter_mode=slave -o 'jsonpath={.items[*].status.phase}')
 		
 		# перевіряємо, чи всі Running
-		all_running=true
-		for s in $statuses; do
-			if [[ "$s" != "Running" ]]; then
-				all_running=false
-				break
-			fi
-		done
-		
-		if $all_running; then
+		if [[ $(echo $statuses | tr ' ' '\n' | grep -vc '^Running$') -eq 0 ]]; then
 			echo "All slave pods are running!"
 			break
 		else
@@ -155,6 +148,7 @@ else
 			sleep 1
 		fi
 	done
+
     echo "All slave pods are running!"logit "INFO" "Finish scaling the number of pods."
 fi
 
