@@ -31,7 +31,7 @@ spec:
                 }
                 mutate{
                     convert => {
-                          "timeStamp" => "integer"
+                          "timeStamp" => "string"
                           "elapsed" => "integer"
                           "responseCode" => "integer"
                           "success" => "boolean"
@@ -43,6 +43,10 @@ spec:
                           "IdleTime" => "integer"
                           "Connect" => "integer"
                         }
+                }
+                  date {
+                    match => ["timeStamp", "UNIX_MS"]
+                    target => "@timestamp"
                 }
             }
             if "test_log_jmeter" in [type]{
