@@ -6,7 +6,7 @@ metadata:
   labels:
     jmeter_mode: slave
 spec:
-  clusterIP: None
+  clusterIP: None  # headless service
   ports:
     - port: 1099
       name: jmeter
@@ -20,17 +20,18 @@ spec:
   selector:
     jmeter_mode: slave
 ---
-apiVersion: batch/v1
-kind: Job
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: jmeter-slaves
   namespace: performance
   labels:
     jmeter_mode: slave
 spec:
-  ttlSecondsAfterFinished: 60
-  backoffLimit: 0
-  parallelism: 0
+  replicas: 2  # можеш змінити кількість слейвів
+  selector:
+    matchLabels:
+      jmeter_mode: slave
   template:
     metadata:
       labels:
@@ -46,7 +47,7 @@ spec:
         - name: MODE
           value: "SLAVE"
         command: ["/bin/bash"]
-        args: ["-c", "trap 'exit 0' SIGUSR1 && while true; do sleep 30;done"]
+        args: ["-c", "trap 'exit 0' SIGUSR1 && jmeter-server -Dserver.rmi.localport=50000"]
         ports:
         - containerPort: 1099
         - containerPort: 50000
@@ -60,7 +61,6 @@ spec:
             cpu: "1024m"
         livenessProbe:
           exec:
-            command:
-            - cat
-            - /opt/jmeter/apache-jmeter/bin/jmeter
-      restartPolicy: Never
+            command: ["pgrep", "-f", "jmeter"]
+          initialDelaySeconds: 10
+          periodSeconds: 10

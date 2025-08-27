@@ -10,8 +10,8 @@ spec:
     requests:
       storage: 5Gi
 ---
-apiVersion: batch/v1
-kind: Job
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: jmeter-master
   namespace: performance
@@ -19,8 +19,11 @@ metadata:
     app: jmeter
     jmeter_mode: master
 spec:
-  completions: 1
-  backoffLimit: 0
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jmeter
+      jmeter_mode: master
   template:
     metadata:
       labels:
@@ -57,8 +60,8 @@ spec:
         command: ["/bin/bash"]
         args: ["-c", "trap 'exit 0' SIGUSR1 && until [ -f /opt/jmeter/load_test ]; do sleep 5; done && /bin/bash /opt/jmeter/load_test"]
         ports:
-        - containerPort: 60000   # RMI для зв’язку зі slave
-        - containerPort: 1099    # RMI registry (часто потрібен)
+        - containerPort: 60000
+        - containerPort: 1099
         resources:
           requests:
             memory: "1024Mi"
@@ -71,7 +74,6 @@ spec:
             command: ["pgrep", "-f", "jmeter"]
           initialDelaySeconds: 10
           periodSeconds: 10
-      restartPolicy: Never
       volumes:
         - name: jmeter-logs
           persistentVolumeClaim:
@@ -79,33 +81,4 @@ spec:
         - name: jmeter-data-dir
           persistentVolumeClaim:
             claimName: jmeter-data-dir-pvc
-# JMeter Deployment
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-  # name: jmeter-deployment
-  # namespace: performance
-# spec:
-  # replicas: 1
-  # selector:
-    # matchLabels:
-      # app: jmeter
-  # template:
-    # metadata:
-      # labels:
-        # app: jmeter
-    # spec:                 # <--- volumes повинні бути тут
-      # containers:
-      # - name: jmeter
-        # image: youketero/jmeter:k8s
-        # env:
-          # - name: JMX_FILE
-            # value: "my-test.jmx"
-        # args: ["-n", "-t", "/jmeter/${JMX_FILE}"]
-        # volumeMounts:
-          # - name: jmeter-logs
-            # mountPath: /jmeter
-      # volumes:
-        # - name: jmeter-logs
-          # persistentVolumeClaim:
-            # claimName: jmeter-logs-pvc
+
