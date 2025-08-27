@@ -1,28 +1,3 @@
-#!/usr/bin/env bash
-
-#=== FUNCTION ================================================================
-#        NAME: logit
-# DESCRIPTION: Log into file and screen.
-# PARAMETER - 1 : Level (ERROR, INFO)
-#           - 2 : Message
-#
-#===============================================================================
-logit() {
-    local level="$1"
-    local msg="$2"
-    local color=""
-
-    case "$level" in
-        INFO)  color="\e[94m" ;;
-        WARN)  color="\e[93m" ;;
-        ERROR) color="\e[91m" ;;
-        *)     color="\e[0m" ;; # default
-    esac
-	
-    echo -e " [${color}${level}\e[0m] [ $(date '+%d-%m-%y %H:%M:%S') ] ${color}${msg}\e[0m"
-    [ "$level" = "WARN" ] && sleep 2
-}
-
 #=== FUNCTION ================================================================
 #        NAME: usage
 # DESCRIPTION: Helper of the function
@@ -88,7 +63,7 @@ for var in "${!required_vars[@]}"; do
         # Специфічна дія для namespace
         if [ "$var" == "namespace" ] && [ -f "${PWD}/namespace_export" ]; then
             namespace=$(awk '{print $NF}' "${PWD}/namespace_export")
-            logit "INFO" "Namespace set from namespace_export: ${namespace}"
+            echo "Namespace set from namespace_export: ${namespace}"
         fi
     fi
 done
@@ -96,12 +71,12 @@ done
 FILE_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "${jmx}" | head -n 1)
 
 if [ ! -f "${FILE_PATH}" ]; then
-    logit "ERROR" "Test script file was not found in scenario/${jmx_dir}/${jmx}"
+    echo "Test script file was not found in scenario/${jmx_dir}/${jmx}"
     usage
 fi
 
 # Recreating each pods
-logit "INFO" "Recreating pod set"
+echo "Recreating pod set"
 kubectl -n "${namespace}" delete -f jmeter_m.yaml -f jmeter_s.yaml 2> /dev/null
 ls -laht
 kubectl -n "${namespace}" apply -f jmeter_m.yaml
@@ -126,7 +101,7 @@ echo "✅ Slave pod is running:"
 
 # Starting jmeter slave pod 
 if [ -z "${nb_injectors}" ]; then
-    logit "WARNING" "Keeping number of injector to 1"
+    echo "Keeping number of injector to 1"
     kubectl -n "${namespace}" patch deployment jmeter-slaves -p '{"spec":{"replicas":1}}'
 else
     echo "Scaling the number of pods to ${nb_injectors}. "
@@ -152,7 +127,7 @@ else
     done
 
     echo "All slave pods are running!"
-    logit "INFO" "Finish scaling the number of pods."
+    echo "Finish scaling the number of pods."
 fi
 
 
@@ -165,11 +140,11 @@ slave_digit="${#slave_num}"
 
 # jmeter directory in pods
 JMETER_DIR=$(kubectl exec -n "${namespace}" -c jmmaster "${master_pod}" -- sh -c "find /opt -maxdepth 1 -type d -name 'apache-jmeter*' | head -n1")
-logit "INFO" "Copying ${FILE_PATH} into ${master_pod}"
+echo "Copying ${FILE_PATH} into ${master_pod}"
 
 for ((i=0; i<end; i++))
 do
-    logit "INFO" "Copying scenario /${jmx_dir}/${jmx} to ${slave_pods[$i]}"
+    echo "Copying scenario /${jmx_dir}/${jmx} to ${slave_pods[$i]}"
     kubectl cp -c jmslave "${FILE_PATH}" -n "${namespace}" "${slave_pods[$i]}:${JMETER_DIR}/bin/" &
 done # for i in "${slave_pods[@]}"
 
@@ -184,7 +159,7 @@ kubectl cp -c jmmaster "${FILE_PATH}" -n "${namespace}" "${master_pod}:${JMETER_
 } > "jmeter_injector_start.sh"
 
 INJ_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "jmeter_injector_start.sh" | head -n 1)
-logit "INFO" "Installing needed plugins on slave pods"
+echo "Installing needed plugins on slave pods"
 
 if [ -n "${csv}" ]; then
     logit "INFO" "Splitting and uploading csv to pods"
@@ -238,9 +213,9 @@ fi
 
 LOAD_TEST_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "load_test.sh" | head -n 1)
 
-logit "INFO" "Copying ${LOAD_TEST_PATH} into  ${master_pod}:${JMETER_DIR}/load_test.sh"
+echo "Copying ${LOAD_TEST_PATH} into  ${master_pod}:${JMETER_DIR}/load_test.sh"
 kubectl cp -c jmmaster "${LOAD_TEST_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/load_test.sh"
 kubectl exec -c jmmaster -n "${namespace}" "${master_pod}" -- /bin/bash "${JMETER_DIR}/load_test.sh"
 
-logit "INFO" "Starting the performance test"
-logit "INFO" "${namespace} ${master_pod}"
+echo "Starting the performance test"
+echo "${namespace} ${master_pod}"
