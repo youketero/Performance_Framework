@@ -230,6 +230,7 @@ fi
 
 # echo "slave_array=(${slave_array[@]}); index=${slave_num} && while [ \${index} -gt 0 ]; do for slave in \${slave_array[@]}; do if echo 'test open port' 2>/dev/null > /dev/tcp/\${slave}/1099; then echo \${slave}' ready' && slave_array=(\${slave_array[@]/\${slave}/}); index=\$((index-1)); else echo \${slave}' not ready'; fi; done; echo 'Waiting for slave readiness'; sleep 2; done" > "${jmx_dir}/load_test.sh"
 
+rm -f "load_test.sh"
 { 
     echo "jmeter -n -t ${jmx} -l /jmeter/${jmx}_$(date +"%F_%H%M%S").csv -Dserver.rmi.ssl.disable=true --remoteexit --remotestart ${slave_list} >> jmeter-master.out 2>> jmeter-master.err &"
     echo "trap 'kill -10 1' EXIT INT TERM"
@@ -238,6 +239,8 @@ fi
 } >> "load_test.sh"
 
 LOAD_TEST_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "load_test.sh" | head -n 1)
+
+chmod +x "load_test.sh"
 
 logit "INFO" "Copying ${LOAD_TEST_PATH} into  ${master_pod}:${JMETER_DIR}/load_test.sh"
 kubectl cp -c jmmaster "${LOAD_TEST_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/load_test.sh"
