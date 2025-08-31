@@ -58,13 +58,6 @@ pipeline {
                         echo "No ECK operator found, skipping cleanup"
                     }
                     echo "Cleaning up old workloads (elasticsearch, kibana, logstash, filebeat)..."
-                    sh '''
-					  cd k8s_jmeter
-                      kubectl delete -f elasticsearch.yaml --ignore-not-found=true
-                      kubectl delete -f kibana.yaml --ignore-not-found=true
-                      kubectl delete -f logstash.yaml --ignore-not-found=true
-                      kubectl delete -f filebeat.yaml --ignore-not-found=true
-                    '''
                     sleep 30
                 }
             }
