@@ -27,25 +27,32 @@ pipeline {
             steps {
                 script {
                     def items = params.Services.tokenize(',')
+					if ("eck-operator" in items) {
+						echo "Deleting ECK operator and CRDs..."
+
+						// Видалення оператора та CRD через apply-файли
+						sh '''
+							kubectl delete -f https://download.elastic.co/downloads/eck/3.1.0/operator.yaml || true
+							kubectl delete -f https://download.elastic.co/downloads/eck/3.1.0/crds.yaml || true
+						'''
+
+						// Видалення CRD поштучно
+						sh '''
+							kubectl delete crd elasticsearches.elasticsearch.k8s.elastic.co --ignore-not-found=true
+							kubectl delete crd kibanas.kibana.k8s.elastic.co --ignore-not-found=true
+							kubectl delete crd beats.beat.k8s.elastic.co --ignore-not-found=true
+							kubectl delete crd agents.agent.k8s.elastic.co --ignore-not-found=true
+							kubectl delete crd enterprisesearches.enterprisesearch.k8s.elastic.co --ignore-not-found=true
+							kubectl delete crd stackconfigpolicies.stackconfigpolicy.k8s.elastic.co --ignore-not-found=true
+						'''
+
+						echo "ECK operator removed. Stopping pipeline gracefully..."
+						currentBuild.result = 'SUCCESS'
+						return
+					}
                     items.each{ i ->
-                        if(i.equals("eck-operator")){
-                            echo "deleting ${i}"
-                            sh '''
-                             kubectl delete -f https://download.elastic.co/downloads/eck/3.1.0/operator.yaml || true
-                             kubectl delete -f https://download.elastic.co/downloads/eck/3.1.0/crds.yaml || true
-                            '''
-                            sh '''
-                             kubectl delete crd elasticsearches.elasticsearch.k8s.elastic.co --ignore-not-found=true
-                             kubectl delete crd kibanas.kibana.k8s.elastic.co --ignore-not-found=true
-                             kubectl delete crd beats.beat.k8s.elastic.co --ignore-not-found=true
-                             kubectl delete crd agents.agent.k8s.elastic.co --ignore-not-found=true
-                             kubectl delete crd enterprisesearches.enterprisesearch.k8s.elastic.co --ignore-not-found=true
-                             kubectl delete crd stackconfigpolicies.stackconfigpolicy.k8s.elastic.co --ignore-not-found=true
-                           '''
-                        }else{
                             echo "deleting ${i}"
                             sh "kubectl delete ${i} --all -n " + params.Namespace + " --ignore-not-found=true"
-                        }
                     }
                 }
             }
