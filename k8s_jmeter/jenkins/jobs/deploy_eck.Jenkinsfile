@@ -59,7 +59,7 @@ pipeline {
                     }
                     echo "Cleaning up old workloads (elasticsearch, kibana, logstash, filebeat)..."
                     sh '''
-					  ls -laht
+					  cd k8s_jmeter
                       kubectl delete -f elasticsearch.yaml --ignore-not-found=true
                       kubectl delete -f kibana.yaml --ignore-not-found=true
                       kubectl delete -f logstash.yaml --ignore-not-found=true
