@@ -59,10 +59,10 @@ pipeline {
                     }
                     echo "Cleaning up old workloads (elasticsearch, kibana, logstash, filebeat)..."
                     sh '''
-                      kubectl delete elasticsearch --all -n performance --ignore-not-found=true
-                      kubectl delete kibana --all -n performance --ignore-not-found=true
-                      kubectl delete logstash --all -n performance --ignore-not-found=true
-                      kubectl delete beat --all -n performance --ignore-not-found=true
+                      kubectl delete -f elasticsearch.yaml --ignore-not-found=true
+                      kubectl delete -f kibana.yaml --ignore-not-found=true
+                      kubectl delete -f logstash.yaml --ignore-not-found=true
+                      kubectl delete -f filebeat.yaml --ignore-not-found=true
                     '''
                     sleep 30
                 }
