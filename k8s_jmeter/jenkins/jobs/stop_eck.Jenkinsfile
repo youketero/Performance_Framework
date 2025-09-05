@@ -1,10 +1,11 @@
-pipeline {
-    agent any
-	
-    properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], 
+properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], 
     parameters([string(defaultValue: 'eck-operator,elasticsearch,kibana,logstash,filebeat', description: 'Which service will be stopped. Values comm separated. Example: eck-operator,elasticsearch,kibana,logstash,filebeat', name: 'Services', trim: true), 
     string(defaultValue: 'performance', description: 'Select namespace from which services will be deleted', name: 'Namespace', trim: true)])])
 
+
+pipeline {
+    agent any
+	
     stages {
         stage('Check kubectl') {
             steps {
