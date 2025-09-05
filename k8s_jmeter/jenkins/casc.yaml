@@ -1,5 +1,5 @@
 jenkins:
-  systemMessage: "Jenkins запущений через CASC"
+  systemMessage: "Jenkins on k8s"
   numExecutors: 2
   securityRealm:
     local:
