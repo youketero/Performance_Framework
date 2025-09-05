@@ -1,3 +1,4 @@
+# Deployment for kibana service
 apiVersion: kibana.k8s.elastic.co/v1
 kind: Kibana
 metadata:
@@ -11,7 +12,7 @@ spec:
   http:
     service:
       spec:
-        type: NodePort       # робимо сервіс NodePort для доступу з Docker Desktop
+        type: NodePort       # Service for accessing kibanan from the browser
         ports:
           - port: 5601
-            nodePort: 32343  # стабільний порт для доступу з браузера
+            nodePort: 32343 

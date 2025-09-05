@@ -52,7 +52,6 @@ declare -A args_with_value=(
     [i]=nb_injectors
 )
 
-# Масив прапорців без аргументу
 flags=(c m r h)
 
 while getopts 'i:mj:hcrn:' option; do
@@ -73,7 +72,6 @@ while getopts 'i:mj:hcrn:' option; do
     fi
 done
 
-# Якщо жодного аргументу не передано
 [ "$#" -eq 0 ] && usage
 
 declare -A required_vars=(
@@ -85,7 +83,6 @@ for var in "${!required_vars[@]}"; do
     if [ -z "${!var}" ]; then
         echo "${required_vars[$var]}"
         usage
-        # Специфічна дія для namespace
         if [ "$var" == "namespace" ] && [ -f "${PWD}/namespace_export" ]; then
             namespace=$(awk '{print $NF}' "${PWD}/namespace_export")
             echo "Namespace set from namespace_export: ${namespace}"
@@ -114,7 +111,6 @@ done
 echo "✅ Master pod is running:"
 kubectl -n ${namespace} get pods -l jmeter_mode=master -o wide
 kubectl -n "${namespace}" apply -f jmeter_s.yaml
-# kubectl -n "${namespace}" patch job jmeter-slaves -p '{"spec":{"parallelism":0}}'
 echo "Waiting for all slaves pods to be terminated before recreating the pod set"
 
 while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={.items[0].status.phase}') != "Running" ]]; do
@@ -179,7 +175,6 @@ kubectl cp -c jmmaster "${FILE_PATH}" -n "${namespace}" "${master_pod}:${JMETER_
     echo "cd ${JMETER_DIR}"
 	echo "trap 'exit 0' SIGUSR1"
     echo "jmeter-server -Dserver.rmi.localport=50000 -Dserver_port=1099 -Jserver.rmi.ssl.disable=true >> jmeter-injector.out 2>> jmeter-injector.err &"
-    #echo "java -jar /opt/jmeter/apache-jmeter/lib/jolokia-java-agent.jar start JMeter >> jmeter-injector.out 2>> jmeter-injector.err"
     echo "wait"
 } > "jmeter_injector_start.sh"
 
@@ -226,8 +221,6 @@ echo slave_array
 if [ -n "${enable_report}" ]; then
     report_command_line="--reportatendofloadtests --reportoutputfolder /report/report-${jmx}-$(date +"%F_%H%M%S")"
 fi
-
-# echo "slave_array=(${slave_array[@]}); index=${slave_num} && while [ \${index} -gt 0 ]; do for slave in \${slave_array[@]}; do if echo 'test open port' 2>/dev/null > /dev/tcp/\${slave}/1099; then echo \${slave}' ready' && slave_array=(\${slave_array[@]/\${slave}/}); index=\$((index-1)); else echo \${slave}' not ready'; fi; done; echo 'Waiting for slave readiness'; sleep 2; done" > "${jmx_dir}/load_test.sh"
 
 {   
     echo "chmod +x '${JMETER_DIR}/load_test.sh'"

@@ -1,4 +1,4 @@
-# Persistent Volume Claim для Jenkins Home
+# Persistent Volume Claim
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -11,14 +11,14 @@ spec:
     requests:
       storage: 10Gi
 ---
-# ServiceAccount з правами на деплой у кластері
+# ServiceAccount
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: jenkins
   namespace: performance
 ---
-# ClusterRoleBinding для Jenkins
+# ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -66,7 +66,7 @@ spec:
           persistentVolumeClaim:
             claimName: jenkins-pvc
 ---
-# Service для доступу до Jenkins
+# Service for access to jenkins from browser
 apiVersion: v1
 kind: Service
 metadata:

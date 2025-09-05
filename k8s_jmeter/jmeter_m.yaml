@@ -1,3 +1,4 @@
+# Persistent volume cache for accessing logs for filebeat
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -10,6 +11,7 @@ spec:
     requests:
       storage: 5Gi
 ---
+# Deployment for jmeter master node
 apiVersion: apps/v1
 kind: Deployment
 metadata:

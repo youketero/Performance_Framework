@@ -1,3 +1,4 @@
+# Service for jmeter slave. Need to access from master to slave jmeter nodes
 apiVersion: v1
 kind: Service
 metadata:
@@ -19,6 +20,7 @@ spec:
       targetPort: 4445
   selector:
     jmeter_mode: slave
+# Service for jmeter slave. Need to access from master to slave jmeter nodes
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -28,7 +30,7 @@ metadata:
   labels:
     jmeter_mode: slave
 spec:
-  replicas: 1  # можеш змінити кількість слейвів
+  replicas: 1
   selector:
     matchLabels:
       jmeter_mode: slave

@@ -15,7 +15,7 @@ spec:
       name: quickstart
   pipelines:
     - pipeline.id: main
-      config.string: | 
+      config.string: | # pipeline for converting and sending data from filebeat
         input {
           beats {
             port => 5044

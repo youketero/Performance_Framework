@@ -1,3 +1,4 @@
+#Volume for getting access to jmeter logs and results
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -11,6 +12,7 @@ spec:
     requests:
       storage: 5Gi
 
+#Deployment for filebeat service
 ---
 apiVersion: beat.k8s.elastic.co/v1beta1
 kind: Beat

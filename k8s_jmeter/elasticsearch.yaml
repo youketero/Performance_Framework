@@ -1,3 +1,4 @@
+#Secrets for possibility to logstash create indexes
 apiVersion: v1
 kind: Secret
 metadata:
@@ -20,7 +21,7 @@ stringData:
             - view_index_metadata
             - auto_configure
 
-
+#Deployment for elasticsearch service
 ---
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
