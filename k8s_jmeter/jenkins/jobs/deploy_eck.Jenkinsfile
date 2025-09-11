@@ -83,15 +83,11 @@ pipeline {
                     echo 'Deploying ended'
                 }
                 script {
-                    // отримуємо пароль з Kubernetes secret
                     def esPassword = sh(
                         script: "kubectl get secret quickstart-es-elastic-user -n performance -o go-template='{{.data.elastic | base64decode}}'",
                         returnStdout: true
                     ).trim()
-
-                    // зберігаємо у середовищі Jenkins для подальшого використання
-                    env.ES_PASSWORD = esPassword
-                    sh "echo 'Elasticsearch password is: ${env.ES_PASSWORD}'"
+                    currentBuild.displayName = "#${env.BUILD_NUMBER} - Elastic user: elastic; ElasticPass:${esPassword}" 
                 }
             }
         }
