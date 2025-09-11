@@ -34,7 +34,7 @@ wait
                        sh """kubectl exec -c jmslave -i -n "${params.Namespace}" "${pod}" -- //bin/bash "${jmeterDir}/jmeter_injector_start.sh" &"""
                    }
                    echo "--------- Copying ${filePath} into ${masterPod} ---------"
-                   def slavePodsStr = sh(script: """kubectl -n "${namespace}" get endpoints jmeter-slaves-svc -o jsonpath='{.subsets[*].addresses[*].ip}' | tr ' ' ','""",returnStdout: true).trim()
+                   def slavePodsStr = sh(script: """kubectl -n "${params.Namespace}" get endpoints jmeter-slaves-svc -o jsonpath='{.subsets[*].addresses[*].ip}' | tr ' ' ','""",returnStdout: true).trim()
                    echo "${slavePodsStr}"
                    sh """kubectl cp -c jmmaster "${filePath}" -n "${params.Namespace}" "${masterPod}:${jmeterDir}/bin/" """
                    writeFile file: 'load_test.sh', text: """chmod +x '${jmeterDir}/load_test.sh'
@@ -44,7 +44,7 @@ wait
 """                
                    def loadTestPath = sh(script: "find /var/jenkins_home/workspace/start_jmeter_test -name load_test.sh | head -n 1", returnStdout: true).trim()
                    sh """kubectl cp -c jmmaster "${loadTestPath}" -n ${params.Namespace} ${masterPod}:${jmeterDir}/load_test.sh"""
-                   sh """kubectl exec -c jmmaster -n ${namespace} ${masterPod} -- /bin/bash  "${jmeterDir}/load_test.sh" """
+                   sh """kubectl exec -c jmmaster -n ${params.Namespace} ${masterPod} -- /bin/bash  "${jmeterDir}/load_test.sh" """
                 }
             }
         }
