@@ -1,0 +1,297 @@
+#!/usr/bin/env bash
+
+#=== FUNCTION ================================================================
+#        NAME: logit
+# DESCRIPTION: Log into file and screen.
+# PARAMETER - 1 : Level (ERROR, INFO)
+#           - 2 : Message
+#
+#===============================================================================
+logit() {
+    local level="$1"
+    local msg="$2"
+    local color=""
+
+    case "$level" in
+        INFO)  color="\e[94m" ;;
+        WARN)  color="\e[93m" ;;
+        ERROR) color="\e[91m" ;;
+        *)     color="\e[0m" ;; # default
+    esac
+	
+    echo -e " [${color}${level}\e[0m] [ $(date '+%d-%m-%y %H:%M:%S') ] ${color}${msg}\e[0m"
+    [ "$level" = "WARN" ] && sleep 2
+}
+
+#=== FUNCTION ================================================================
+#        NAME: usage
+# DESCRIPTION: Helper of the function
+# PARAMETER - None
+#
+#===============================================================================
+usage() {
+    local messages=(
+        "-j <filename.jmx>"
+        "-n <namespace>"
+        "-c flag to split and copy csv if you use csv in your test"
+        "-m flag to copy fragmented jmx present in scenario/project/module if you use include controller and external test fragment"
+        "-i <injectorNumber> to scale slaves pods to the desired number of JMeter injectors"
+        "-r flag to enable report generation at the end of the test"
+    )
+
+    for msg in "${messages[@]}"; do
+        echo "$msg"
+    done
+
+    exit 1
+}
+
+declare -A args_with_value=(
+    [n]=namespace
+    [j]=jmx
+    [i]=nb_injectors
+)
+
+flags=(c m r h)
+
+while getopts 'i:mj:hcrn:' option; do
+    if [[ " ${!args_with_value[@]} " =~ " ${option} " ]]; then
+        # Параметри з аргументом
+        var_name=${args_with_value[$option]}
+        declare "$var_name"="${OPTARG}"
+    elif [[ " ${flags[@]} " =~ " ${option} " ]]; then
+        # Прапорці
+        case $option in
+            c) csv=1 ;;
+            m) module=1 ;;
+            r) enable_report=1 ;;
+            h) usage ;;
+        esac
+    else
+        usage
+    fi
+done
+
+[ "$#" -eq 0 ] && usage
+
+declare -A required_vars=(
+    [namespace]="Namespace not provided!"
+    [jmx]="JMX jmeter project not provided!"
+)
+
+for var in "${!required_vars[@]}"; do
+    if [ -z "${!var}" ]; then
+        echo "${required_vars[$var]}"
+        usage
+        if [ "$var" == "namespace" ] && [ -f "${PWD}/namespace_export" ]; then
+            namespace=$(awk '{print $NF}' "${PWD}/namespace_export")
+            echo "Namespace set from namespace_export: ${namespace}"
+        fi
+    fi
+done
+
+FILE_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "${jmx}" | head -n 1)
+
+if [ ! -f "${FILE_PATH}" ]; then
+    echo "Test script file was not found in scenario/${jmx_dir}/${jmx}"
+    usage
+fi
+
+# Recreating each pods
+echo "Recreating pod set"
+kubectl -n "${namespace}" delete -f jmeter_m.yaml -f jmeter_s.yaml 2> /dev/null
+ls -laht
+kubectl -n "${namespace}" apply -f jmeter_m.yaml
+while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=master -o 'jsonpath={.items[0].status.phase}') != "Running" ]]; do
+  echo "Master pod is not ready yet..."
+  kubectl -n ${namespace} get pods -l jmeter_mode=master -o wide
+  sleep 2
+done
+
+echo "✅ Master pod is running:"
+kubectl -n ${namespace} get pods -l jmeter_mode=master -o wide
+kubectl -n "${namespace}" apply -f jmeter_s.yaml
+echo "Waiting for all slaves pods to be terminated before recreating the pod set"
+
+while [[ $(kubectl -n ${namespace} get pods -l jmeter_mode=slave -o 'jsonpath={.items[0].status.phase}') != "Running" ]]; do
+  echo "Slave pod is not ready yet..."
+  kubectl -n ${namespace} get pods -l jmeter_mode=slave -o wide
+  sleep 2
+done
+echo "✅ Slave pod is running:"
+
+# Starting jmeter slave pod 
+if [ -z "${nb_injectors}" ]; then
+    echo "Keeping number of injector to 1"
+    kubectl -n "${namespace}" patch deployment jmeter-slaves -p '{"spec":{"replicas":1}}'
+else
+    echo "Scaling the number of pods to ${nb_injectors}. "
+    kubectl -n "${namespace}" patch deployment jmeter-slaves -p '{"spec":{"replicas":'${nb_injectors}'}}'
+    echo "Waiting for pods to be ready"
+
+    end=${nb_injectors}
+    for ((i=1; i<=end; i++)); do
+        while true; do
+            ready_status=$(kubectl -n "$namespace" get deployment "jmeter-slaves" --no-headers)
+            # ready_status виглядає приблизно так: "jmeter-slaves 2/2 2 2 5m"
+            ready=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f1)
+            total=$(echo "$ready_status" | awk '{print $2}' | cut -d'/' -f2)
+
+            if [ "$ready" -eq "$total" ]; then
+                echo "All pods are ready!"
+                break
+            fi
+
+            echo "$ready_status"
+            sleep 1
+        done
+    done
+
+    echo "All slave pods are running!"
+    echo "Finish scaling the number of pods."
+fi
+
+
+master_pod=$(kubectl get pod -n "${namespace}" | grep jmeter-master | awk '{print $1}')
+echo "master_pod is ------------------> ${master_pod}"
+
+slave_pods=($(kubectl get pods -n "${namespace}" | grep jmeter-slave | grep Running | awk '{print $1}'))
+slave_num=${#slave_pods[@]}
+slave_digit="${#slave_num}"
+
+# jmeter directory in pods
+JMETER_DIR=$(kubectl exec -n "${namespace}" -c jmmaster "${master_pod}" -- sh -c "find /opt -maxdepth 1 -type d -name 'apache-jmeter*' | head -n1")
+echo "Copying ${FILE_PATH} into ${master_pod}"
+
+for ((i=0; i<end; i++))
+do
+    echo "Copying scenario /${jmx_dir}/${jmx} to ${slave_pods[$i]}"
+    kubectl cp -c jmslave "${FILE_PATH}" -n "${namespace}" "${slave_pods[$i]}:${JMETER_DIR}/bin/" &
+done # for i in "${slave_pods[@]}"
+
+kubectl cp -c jmmaster "${FILE_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/bin/"
+
+{
+    echo "cd ${JMETER_DIR}"
+	echo "trap 'exit 0' SIGUSR1"
+    echo "jmeter-server -Dserver.rmi.localport=50000 -Dserver_port=1099 -Jserver.rmi.ssl.disable=true >> jmeter-injector.out 2>> jmeter-injector.err &"
+    echo "wait"
+} > "jmeter_injector_start.sh"
+
+INJ_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "jmeter_injector_start.sh" | head -n 1)
+logit "INFO" "Installing needed plugins on slave pods"
+
+if [ -n "${csv}" ]; then
+    logit "INFO" "Splitting and uploading csv to pods"
+    dataset_dir="./data"
+
+    for csvfilefull in "${dataset_dir}"/*.csv; do
+        csvfile="${csvfilefull##*/}"
+        logit "INFO" "Processing file: $csvfile"
+        
+        lines_total=$(wc -l < "${csvfilefull}")
+        lines_per_split=$(( (lines_total + slave_num - 1) / slave_num ))  # округлення вгору
+        logit "INFO" "Splitting ${csvfile} into $slave_num parts, $lines_per_split lines each"
+
+        split --suffix-length="${slave_digit}" -d -l "$lines_per_split" "${csvfilefull}" "${csvfilefull}."
+
+        for ((i=0; i<slave_num; i++)); do
+            j=$(printf "%0${slave_digit}d" "$i")
+            split_file="${csvfilefull}.${j}"
+            logit "INFO" "Copying ${split_file} to ${slave_pods[$i]}:${jmeter_directory}/${csvfile}"
+            kubectl -n "${namespace}" cp -c jmslave "$split_file" "${slave_pods[$i]}":"${JMETER_DIR}/${csvfile}" &
+        done
+    done
+    wait
+    logit "INFO" "Finished uploading CSV files to all slaves"
+fi
+
+wait
+
+for ((i=0; i<end; i++))
+do
+        logit "INFO" "Starting jmeter server on ${slave_pods[$i]} in parallel"
+        kubectl cp -c jmslave "${INJ_PATH}" -n "${namespace}" "${slave_pods[$i]}:${JMETER_DIR}"
+        kubectl exec -c jmslave -i -n "${namespace}" "${slave_pods[$i]}" -- //bin/bash "${JMETER_DIR}/jmeter_injector_start.sh" &  
+done
+
+slave_list=$(kubectl -n "${namespace}" get endpoints jmeter-slaves-svc -o jsonpath='{.subsets[*].addresses[*].ip}' | tr ' ' ',')
+
+echo slave_array
+if [ -n "${enable_report}" ]; then
+    report_command_line="--reportatendofloadtests --reportoutputfolder /report/report-${jmx}-$(date +"%F_%H%M%S")"
+fi
+
+{   
+    echo "chmod +x '${JMETER_DIR}/load_test.sh'"
+    echo "trap 'exit 0' SIGUSR1"
+    echo "jmeter -n -t ${JMETER_DIR}/bin/${jmx} -l /jmeter/report_${jmx}_$(date +"%F_%H%M%S").csv -Dserver.rmi.ssl.disable=true --remoteexit --remotestart ${slave_list} >> jmeter-master.out 2>> jmeter-master.err &"
+    echo "wait"
+} > "load_test.sh"
+
+LOAD_TEST_PATH=$(find /var/jenkins_home/workspace/start_jmeter_test -name "load_test.sh" | head -n 1)
+
+echo "Copying ${LOAD_TEST_PATH} into  ${master_pod}:${JMETER_DIR}/load_test.sh"
+kubectl cp -c jmmaster "${LOAD_TEST_PATH}" -n "${namespace}" "${master_pod}:${JMETER_DIR}/load_test.sh"
+kubectl exec -c jmmaster -n "${namespace}" "${master_pod}" -- /bin/bash "${JMETER_DIR}/load_test.sh"
+
+echo "Starting the performance test"
+echo "${namespace} ${master_pod}"
+
+
+def uploadCsvToPods(csvDir, slavePods, namespace, JMETER_DIR, slaveNum, slaveDigit) {
+
+    echo "INFO: Splitting and uploading CSV files to pods"
+
+    csvFiles.each { file ->
+        def csvFileFull = file.path
+        def csvFileName = file.name
+
+        echo "INFO: Processing file: ${csvFileName}"
+
+        // Підрахунок рядків у файлі
+        def linesTotal = sh(script: "wc -l < '${csvFileFull}'", returnStdout: true).trim().toInteger()
+        def linesPerSplit = (linesTotal + slaveNum - 1) / slaveNum  // округлення вгору
+        echo "INFO: Splitting ${csvFileName} into ${slaveNum} parts, ${linesPerSplit} lines each"
+
+        // Split файли
+        sh "split --suffix-length=${slaveDigit} -d -l ${linesPerSplit} '${csvFileFull}' '${csvFileFull}.'"
+
+        // Копіюємо split файли на pod'и паралельно
+        def copyCommands = []
+        for (int i = 0; i < slaveNum; i++) {
+            def j = String.format("%0${slaveDigit}d", i)
+            def splitFile = "${csvFileFull}.${j}"
+            def pod = slavePods[i]
+            echo "INFO: Copying ${splitFile} to ${pod}:${JMETER_DIR}/${csvFileName}"
+            copyCommands << "kubectl -n ${namespace} cp -c jmslave '${splitFile}' ${pod}:${JMETER_DIR}/${csvFileName}"
+        }
+
+        // Виконуємо паралельно
+        parallel copyCommands.collectEntries { cmd -> ["${cmd}": { sh cmd }] }
+    }
+
+    echo "INFO: Finished uploading CSV files to all slaves"
+}
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Upload CSV') {
+            steps {
+                script {
+                    def slavePods = ['jmeter-slave-1', 'jmeter-slave-2', 'jmeter-slave-3']
+                    uploadCsvToPods(
+                        csvDir: './data',
+                        slavePods: slavePods,
+                        namespace: 'performance',
+                        JMETER_DIR: '/opt/jmeter/apache-jmeter/bin',
+                        slaveNum: slavePods.size(),
+                        slaveDigit: 2
+                    )
+                }
+            }
+        }
+    }
+}

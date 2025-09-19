@@ -87,7 +87,7 @@ pipeline {
                         script: "kubectl get secret quickstart-es-elastic-user -n performance -o go-template='{{.data.elastic | base64decode}}'",
                         returnStdout: true
                     ).trim()
-                    currentBuild.displayName = "#${env.BUILD_NUMBER} - Elastic user: elastic; ElasticPass:${esPassword}" 
+					currentBuild.description = "#${env.BUILD_NUMBER} - Elastic user: elastic; ElasticPass:${esPassword}" 
                 }
             }
         }
