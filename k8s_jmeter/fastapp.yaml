@@ -1,0 +1,38 @@
+# Deployment for fast api application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapp
+  namespace: performance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapp
+  template:
+    metadata:
+      labels:
+        app: fastapp
+    spec:
+      containers:
+        - name: fastapp
+          image: youketero/fastapp:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: USE_MOCK
+              value: "true"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapp
+  namespace: performance
+spec:
+  type: NodePort
+  selector:
+    app: fastapp
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30000
