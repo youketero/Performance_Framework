@@ -6,12 +6,12 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="HOST" elementType="Argument">
             <stringProp name="Argument.name">HOST</stringProp>
-            <stringProp name="Argument.value">localhost</stringProp>
+            <stringProp name="Argument.value">fastapp</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="PORT" elementType="Argument">
             <stringProp name="Argument.name">PORT</stringProp>
-            <stringProp name="Argument.value">30000</stringProp>
+            <stringProp name="Argument.value">8000</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="PROTOCOL" elementType="Argument">
@@ -95,7 +95,7 @@
           <stringProp name="LoopController.loops">${__P(THREADS,10)}</stringProp>
         </LoopController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST_/users">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST_/users" enabled="true">
             <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -136,7 +136,7 @@
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Content-Type</stringProp>
@@ -147,11 +147,11 @@
             <hashTree/>
           </hashTree>
         </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Generate products">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Generate products" enabled="true">
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET_/users">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET_/users" enabled="true">
             <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -165,7 +165,7 @@
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="User">
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="User" enabled="true">
               <stringProp name="RegexExtractor.useHeaders">false</stringProp>
               <stringProp name="RegexExtractor.refname">user</stringProp>
               <stringProp name="RegexExtractor.regex">&quot;username&quot;:&quot;(.{1,20})&quot;,</stringProp>
@@ -175,7 +175,7 @@
               <stringProp name="RegexExtractor.match_number">1</stringProp>
             </RegexExtractor>
             <hashTree/>
-            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Pass">
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Pass" enabled="true">
               <stringProp name="RegexExtractor.useHeaders">false</stringProp>
               <stringProp name="RegexExtractor.refname">pass</stringProp>
               <stringProp name="RegexExtractor.regex">&quot;password&quot;:&quot;(.{1,20})&quot;,</stringProp>
@@ -186,7 +186,7 @@
             </RegexExtractor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST_/login">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST_/login" enabled="true">
             <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -229,11 +229,11 @@
             </RegexExtractor>
             <hashTree/>
           </hashTree>
-          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
             <stringProp name="LoopController.loops">${PRODUCTS_NUM}</stringProp>
           </LoopController>
           <hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST_/products">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST_/products" enabled="true">
               <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
               <stringProp name="HTTPSampler.port">${PORT}</stringProp>
               <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -263,7 +263,7 @@
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
                   <elementProp name="" elementType="Header">
                     <stringProp name="Header.name">Content-Type</stringProp>
@@ -294,12 +294,12 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Login">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Login" enabled="true">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET_/users/${id}">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET_/users/${id}" enabled="true">
             <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -313,7 +313,7 @@
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="User">
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="User" enabled="true">
               <stringProp name="RegexExtractor.useHeaders">false</stringProp>
               <stringProp name="RegexExtractor.refname">user</stringProp>
               <stringProp name="RegexExtractor.regex">&quot;username&quot;:&quot;(.{1,20})&quot;,</stringProp>
@@ -323,7 +323,7 @@
               <stringProp name="RegexExtractor.match_number">1</stringProp>
             </RegexExtractor>
             <hashTree/>
-            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Pass">
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Pass" enabled="true">
               <stringProp name="RegexExtractor.useHeaders">false</stringProp>
               <stringProp name="RegexExtractor.refname">pass</stringProp>
               <stringProp name="RegexExtractor.regex">&quot;password&quot;:&quot;(.{1,20})&quot;,</stringProp>
@@ -334,7 +334,7 @@
             </RegexExtractor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST_/login">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST_/login" enabled="true">
             <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -357,7 +357,7 @@
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Content-Type</stringProp>
@@ -366,7 +366,7 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor">
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
               <stringProp name="RegexExtractor.useHeaders">false</stringProp>
               <stringProp name="RegexExtractor.refname">token</stringProp>
               <stringProp name="RegexExtractor.regex">{&quot;token&quot;:&quot;(.*)&quot;}</stringProp>
@@ -383,7 +383,7 @@
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST_/cart">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST_/cart" enabled="true">
             <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -408,7 +408,7 @@
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Content-Type</stringProp>
@@ -421,7 +421,7 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor">
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
               <stringProp name="RegexExtractor.useHeaders">false</stringProp>
               <stringProp name="RegexExtractor.refname">cartid</stringProp>
               <stringProp name="RegexExtractor.regex">&quot;id&quot;:(.{0,4}),&quot;userId&quot;</stringProp>
@@ -437,7 +437,7 @@
           <stringProp name="LoopController.loops">${PRODUCTS_PAGES_NUM}</stringProp>
         </LoopController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET_/products">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET_/products" enabled="true">
             <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -451,16 +451,16 @@
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree/>
-          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Select specific product loop">
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Select specific product loop" enabled="true">
             <stringProp name="LoopController.loops">${PRODUCTS_PER_PAGE}</stringProp>
           </LoopController>
           <hashTree>
-            <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Select specific product">
+            <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Select specific product" enabled="true">
               <boolProp name="TransactionController.parent">true</boolProp>
               <boolProp name="TransactionController.includeTimers">false</boolProp>
             </TransactionController>
             <hashTree>
-              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET_/products/{id}">
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET_/products/{id}" enabled="true">
                 <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
                 <stringProp name="HTTPSampler.port">${PORT}</stringProp>
                 <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -474,7 +474,7 @@
                 </elementProp>
               </HTTPSamplerProxy>
               <hashTree>
-                <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor">
+                <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
                   <stringProp name="RegexExtractor.useHeaders">false</stringProp>
                   <stringProp name="RegexExtractor.refname">productid</stringProp>
                   <stringProp name="RegexExtractor.regex">&quot;id&quot;:(.{0,6}),&quot;title&quot;</stringProp>
@@ -485,18 +485,18 @@
                 </RegexExtractor>
                 <hashTree/>
               </hashTree>
-              <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller">
+              <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
                 <stringProp name="IfController.condition">${__groovy(${__Random(1,100,)}&lt;${PERCENT_PRODUCTS_ADDED_TO_CART},)}</stringProp>
                 <boolProp name="IfController.evaluateAll">false</boolProp>
                 <boolProp name="IfController.useExpression">true</boolProp>
               </IfController>
               <hashTree>
-                <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Adding product to cart">
+                <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Adding product to cart" enabled="true">
                   <boolProp name="TransactionController.parent">true</boolProp>
                   <boolProp name="TransactionController.includeTimers">false</boolProp>
                 </TransactionController>
                 <hashTree>
-                  <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET_/cart/{id}">
+                  <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET_/cart/{id}" enabled="true">
                     <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
                     <stringProp name="HTTPSampler.port">${PORT}</stringProp>
                     <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -510,7 +510,7 @@
                     </elementProp>
                   </HTTPSamplerProxy>
                   <hashTree>
-                    <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+                    <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                       <collectionProp name="HeaderManager.headers">
                         <elementProp name="" elementType="Header">
                           <stringProp name="Header.name">Content-Type</stringProp>
@@ -523,7 +523,7 @@
                       </collectionProp>
                     </HeaderManager>
                     <hashTree/>
-                    <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="JSR223 PostProcessor">
+                    <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="JSR223 PostProcessor" enabled="true">
                       <stringProp name="cacheKey">false</stringProp>
                       <stringProp name="filename"></stringProp>
                       <stringProp name="parameters"></stringProp>
@@ -549,7 +549,7 @@ vars.put(&quot;cart&quot;, new JsonBuilder(json).toString())</stringProp>
                     </JSR223PostProcessor>
                     <hashTree/>
                   </hashTree>
-                  <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT_/cart">
+                  <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT_/cart" enabled="true">
                     <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
                     <stringProp name="HTTPSampler.port">${PORT}</stringProp>
                     <stringProp name="HTTPSampler.protocol">${PROTOCOL}</stringProp>
@@ -569,7 +569,7 @@ vars.put(&quot;cart&quot;, new JsonBuilder(json).toString())</stringProp>
                     </elementProp>
                   </HTTPSamplerProxy>
                   <hashTree>
-                    <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+                    <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                       <collectionProp name="HeaderManager.headers">
                         <elementProp name="" elementType="Header">
                           <stringProp name="Header.name">Content-Type</stringProp>
