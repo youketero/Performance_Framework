@@ -79,6 +79,17 @@ spec:
                     }
                     stdout { codec => json }
                   }
+                  if "fastapp" in [type] {
+                    elasticsearch {   
+                      hosts => ["${QUICKSTART_ES_HOSTS}"]
+                      user => "${QUICKSTART_ES_USER}"
+                      password => "${QUICKSTART_ES_PASSWORD}"
+                      ssl_certificate_authorities => "${QUICKSTART_ES_SSL_CERTIFICATE_AUTHORITY}"
+                      manage_template => true
+                      index => "fastapp"
+                    }
+                    stdout { codec => json }
+                  }
                 }
   services:
      - name: beats

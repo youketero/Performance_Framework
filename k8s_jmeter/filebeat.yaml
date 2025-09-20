@@ -38,6 +38,13 @@ spec:
         fields:
           type: test_log_jmeter
         fields_under_root: true
+      - type: log
+        enabled: true
+        paths:
+          - /fastapp_logs/*.log
+        fields:
+          type: fastapp
+        fields_under_root: true
     output.logstash:
       hosts: ["logstash-sample-ls-beats:5044"]
   daemonSet:
@@ -50,7 +57,12 @@ spec:
             volumeMounts:
               - name: jmeter-logs
                 mountPath: /jmeter
+              - name: fastapp-logs-volume
+                mountPath: /fastapp_logs
         volumes:
           - name: jmeter-logs
             persistentVolumeClaim:
               claimName: jmeter-logs-pvc
+          - name: fastapp-logs-volume
+            persistentVolumeClaim:
+              claimName: fastapp-logs-pvc  

@@ -1,4 +1,16 @@
-# Deployment for fast api application
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fastapp-logs-pvc
+  namespace: performance
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+# Deployment for FastAPI application
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,9 +31,16 @@ spec:
           image: youketero/fastapp:latest
           ports:
             - containerPort: 8000
+          volumeMounts:                
+            - mountPath: /logs          
+              name: fastapp-logs-volume
           env:
             - name: USE_MOCK
               value: "true"
+      volumes:                       # <- зміщено сюди
+        - name: fastapp-logs-volume
+          persistentVolumeClaim:
+            claimName: fastapp-logs-pvc             
 ---
 apiVersion: v1
 kind: Service
