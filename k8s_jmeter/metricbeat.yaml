@@ -1,3 +1,23 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: metricbeat
+  namespace: performance
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: metricbeat
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: metricbeat
+    namespace: performance
+---
 apiVersion: beat.k8s.elastic.co/v1beta1
 kind: Beat
 metadata:
@@ -17,15 +37,6 @@ spec:
           - filesystem
           - process_summary
         processes: ['.*']
-      - module: kubernetes
-        period: 10s
-        metricsets:
-          - node
-          - pod
-          - container
-        hosts: ["https://${HOSTNAME}:10250"]
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-        ssl.verification_mode: "none"
 
     output.logstash:
       hosts: ["logstash-sample-ls-beats:5044"]
@@ -54,22 +65,3 @@ spec:
           - name: cgroup
             hostPath:
               path: /sys/fs/cgroup
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: metricbeat
-  namespace: performance
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: metricbeat
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-  - kind: ServiceAccount
-    name: metricbeat
-    namespace: performance

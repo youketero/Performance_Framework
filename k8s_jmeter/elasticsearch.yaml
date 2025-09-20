@@ -12,7 +12,7 @@ stringData:
         - manage_index_templates
         - cluster:admin/ingest/pipeline/get
       indices:
-        - names: [ "fastapp*", "jmeter_*", "logstash", "logstash-*", "my-index*", "ecs-logstash*", "logs-*", "metrics-*", "synthetics-*", "traces-*" ]
+        - names: ["metricbeat-*", "fastapp*", "jmeter_*", "logstash", "logstash-*", "my-index*", "ecs-logstash*", "logs-*", "metrics-*", "synthetics-*", "traces-*" ]
           privileges: 
             - create_index
             - write
