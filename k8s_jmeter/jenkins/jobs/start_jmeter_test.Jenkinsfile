@@ -45,7 +45,7 @@ wait
                    custom_params = change_custom_parameter(params.CUSTOM_PARAMETERS)
                    writeFile file: 'load_test.sh', text: """chmod +x '${jmeterDir}/load_test.sh'
 trap 'exit 0' SIGUSR1
-jmeter -n -t ${jmeterDir}/bin/${params.JMX_FILE} -l /jmeter/report_${params.JMX_FILE}_\$(date +"%F_%H%M%S").csv -GDURATION=${params.DURATION} -GTHREADS=${params.THREADS} -GRAMP_UP=${params.RAMP_UP} ${custom_params} -Dserver.rmi.ssl.disable=true --remoteexit --remotestart ${slavePodsStr} >> jmeter-master.out 2>> jmeter-master.err &
+jmeter -n -t ${jmeterDir}/bin/${params.JMX_FILE} -l /jmeter/report_${params.JMX_FILE}_\$(date +"%F_%H%M%S").csv -j /jmeter/report_${params.JMX_FILE}_\$(date +"%F_%H%M%S").jtl -GDURATION=${params.DURATION} -GTHREADS=${params.THREADS} -GRAMP_UP=${params.RAMP_UP} ${custom_params} -Dserver.rmi.ssl.disable=true --remoteexit --remotestart ${slavePodsStr} >> jmeter-master.out 2>> jmeter-master.err &
 wait
 """                
                    uploadCsvToPods(slavePods, NAMESPACE, jmeterDir, slavePods.size())
