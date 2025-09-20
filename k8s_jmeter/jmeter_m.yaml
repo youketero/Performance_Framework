@@ -66,11 +66,11 @@ spec:
         - containerPort: 1099
         resources:
           requests:
-            memory: "1024Mi"
-            cpu: "1024m"
+            memory: "2048Mi"
+            cpu: "2048m"
           limits:
             memory: "2048Mi"
-            cpu: "1024m"
+            cpu: "2048m"
         livenessProbe:
           exec:
             command: ["pgrep", "-f", "jmeter"]

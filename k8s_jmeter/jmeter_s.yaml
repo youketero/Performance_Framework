@@ -57,10 +57,10 @@ spec:
         resources:
           requests:
             memory: "1024Mi"
-            cpu: "1024m"
+            cpu: "2048m"
           limits:
             memory: "1024Mi"
-            cpu: "1024m"
+            cpu: "2048m"
         livenessProbe:
           exec:
             command: ["pgrep", "-f", "jmeter"]
