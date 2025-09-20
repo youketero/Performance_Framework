@@ -12,7 +12,7 @@ stringData:
         - manage_index_templates
         - cluster:admin/ingest/pipeline/get
       indices:
-        - names: ["metricbeat-*", "fastapp*", "jmeter_*", "logstash", "logstash-*", "my-index*", "ecs-logstash*", "logs-*", "metrics-*", "synthetics-*", "traces-*" ]
+        - names: ["metricbeat-*", "fastapp*", "jmeter*", "logstash", "logstash-*", "my-index*", "ecs-logstash*", "logs-*", "metrics-*", "synthetics-*", "traces-*" ]
           privileges: 
             - create_index
             - write
@@ -26,7 +26,7 @@ stringData:
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
-  name: quickstart
+  name: elasticsearch
   namespace: performance
 spec:
   version: 8.13.4

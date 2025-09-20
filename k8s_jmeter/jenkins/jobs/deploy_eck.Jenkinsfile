@@ -36,7 +36,6 @@ pipeline {
             steps {
                 script {
                     echo 'Checking if ECK operator exists...'
-                    // Якщо є namespace elastic-system → видаляємо все
                     def exists = sh(script: "kubectl get ns | grep elastic-system || true", returnStdout: true).trim()
                     if (exists) {
                         echo "ECK operator detected, deleting..."
@@ -58,7 +57,7 @@ pipeline {
                         echo "No ECK operator found, skipping cleanup"
                     }
                     echo "Cleaning up old workloads (elasticsearch, kibana, logstash, filebeat)..."
-                    sleep 30
+                    sleep 10
                 }
             }
         }
@@ -84,10 +83,10 @@ pipeline {
                 }
                 script {
                     def esPassword = sh(
-                        script: "kubectl get secret quickstart-es-elastic-user -n performance -o go-template='{{.data.elastic | base64decode}}'",
+                        script: "kubectl get secret elasticsearch-es-elastic-user -n performance -o go-template='{{.data.elastic | base64decode}}'",
                         returnStdout: true
                     ).trim()
-					currentBuild.description = "#${env.BUILD_NUMBER} - Elastic user: elastic; ElasticPass:${esPassword}" 
+					currentBuild.description = "#${env.BUILD_NUMBER} - Elastic user: elastic; ElasticPass: ${esPassword}" 
                 }
             }
         }
@@ -119,6 +118,17 @@ pipeline {
                 echo 'Deploying filebeat'
                 dir('k8s_jmeter') {
                     sh 'kubectl apply -f filebeat.yaml'
+                    sh 'kubectl wait --for=condition=ready pod -l elasticsearch.k8s.elastic.co/cluster-name=quickstart -n performance --timeout=180s'
+                }
+                echo 'Deploying ended'
+            }
+        }
+        stage('Deploying metricbeat') {
+            steps {
+                echo "echo"
+                echo 'Deploying metricbeat'
+                dir('k8s_jmeter') {
+                    sh 'kubectl apply -f metricbeat.yaml'
                     sh 'kubectl wait --for=condition=ready pod -l elasticsearch.k8s.elastic.co/cluster-name=quickstart -n performance --timeout=180s'
                 }
                 echo 'Deploying ended'

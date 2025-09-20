@@ -11,7 +11,18 @@ spec:
   resources:
     requests:
       storage: 5Gi
-
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fastapp-logs-pvc
+  namespace: performance
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
 #Deployment for filebeat service
 ---
 apiVersion: beat.k8s.elastic.co/v1beta1
@@ -46,7 +57,7 @@ spec:
           type: fastapp
         fields_under_root: true
     output.logstash:
-      hosts: ["logstash-sample-ls-beats:5044"]
+      hosts: ["logstash-ls-beats:5044"]
   daemonSet:
     podTemplate:
       spec:

@@ -2,17 +2,17 @@
 apiVersion: kibana.k8s.elastic.co/v1
 kind: Kibana
 metadata:
-  name: quickstart
+  name: kibana
   namespace: performance
 spec:
   version: 8.13.4
   count: 1
   elasticsearchRef:
-    name: quickstart
+    name: elasticsearch
   http:
     service:
       spec:
-        type: NodePort       # Service for accessing kibanan from the browser
+        type: NodePort       # Service for accessing kibana from the browser
         ports:
           - port: 5601
             nodePort: 32343 

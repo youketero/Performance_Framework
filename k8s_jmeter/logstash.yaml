@@ -1,7 +1,7 @@
 apiVersion: logstash.k8s.elastic.co/v1alpha1
 kind: Logstash
 metadata:
-  name: logstash-sample
+  name: logstash
   namespace: performance
 spec:
   version: 8.13.4
@@ -11,8 +11,8 @@ spec:
     api.http.host: "0.0.0.0"
     queue.type: memory
   elasticsearchRefs:
-    - clusterName: quickstart
-      name: quickstart
+    - clusterName: elasticsearch
+      name: elasticsearch
   pipelines:
     - pipeline.id: main
       config.string: |
@@ -65,8 +65,8 @@ spec:
           }
           # FastAPI logs (JSON format recommended)
           if "fastapp" in [type] {
-            json {
-              source => "message"
+            grok {
+              match => { "message" => "%{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - %{GREEDYDATA:log_message}" }
             }
           }
         }
@@ -74,10 +74,10 @@ spec:
           # JMeter CSV
           if "test_log_csv" in [type] {
             elasticsearch {
-              hosts => ["${QUICKSTART_ES_HOSTS}"]
-              user => "${QUICKSTART_ES_USER}"
-              password => "${QUICKSTART_ES_PASSWORD}"
-              ssl_certificate_authorities => "${QUICKSTART_ES_SSL_CERTIFICATE_AUTHORITY}"
+              hosts => ["${ELASTICSEARCH_ES_HOSTS}"]
+              user => "${ELASTICSEARCH_ES_USER}"
+              password => "${ELASTICSEARCH_ES_PASSWORD}"
+              ssl_certificate_authorities => "${ELASTICSEARCH_ES_SSL_CERTIFICATE_AUTHORITY}"
               index => "jmeter-csv-%{+YYYY.MM.dd}"
             }
             stdout { codec => json }
@@ -85,10 +85,10 @@ spec:
           # JMeter LOG
           if "test_log_jmeter" in [type] {
             elasticsearch {
-              hosts => ["${QUICKSTART_ES_HOSTS}"]
-              user => "${QUICKSTART_ES_USER}"
-              password => "${QUICKSTART_ES_PASSWORD}"
-              ssl_certificate_authorities => "${QUICKSTART_ES_SSL_CERTIFICATE_AUTHORITY}"
+              hosts => ["${ELASTICSEARCH_ES_HOSTS}"]
+              user => "${ELASTICSEARCH_ES_USER}"
+              password => "${ELASTICSEARCH_ES_PASSWORD}"
+              ssl_certificate_authorities => "${ELASTICSEARCH_ES_SSL_CERTIFICATE_AUTHORITY}"
               index => "jmeter-log-%{+YYYY.MM.dd}"
             }
             stdout { codec => json }
@@ -96,10 +96,10 @@ spec:
           # FastAPI
           if "fastapp" in [type] {
             elasticsearch {
-              hosts => ["${QUICKSTART_ES_HOSTS}"]
-              user => "${QUICKSTART_ES_USER}"
-              password => "${QUICKSTART_ES_PASSWORD}"
-              ssl_certificate_authorities => "${QUICKSTART_ES_SSL_CERTIFICATE_AUTHORITY}"
+              hosts => ["${ELASTICSEARCH_ES_HOSTS}"]
+              user => "${ELASTICSEARCH_ES_USER}"
+              password => "${ELASTICSEARCH_ES_PASSWORD}"
+              ssl_certificate_authorities => "${ELASTICSEARCH_ES_SSL_CERTIFICATE_AUTHORITY}"
               index => "fastapp-%{+YYYY.MM.dd}"
             }
             stdout { codec => json }
@@ -107,10 +107,10 @@ spec:
           # Metricbeat
           if [agent][type] == "metricbeat" {
             elasticsearch {
-              hosts => ["${QUICKSTART_ES_HOSTS}"]
-              user => "${QUICKSTART_ES_USER}"
-              password => "${QUICKSTART_ES_PASSWORD}"
-              ssl_certificate_authorities => "${QUICKSTART_ES_SSL_CERTIFICATE_AUTHORITY}"
+              hosts => ["${ELASTICSEARCH_ES_HOSTS}"]
+              user => "${ELASTICSEARCH_ES_USER}"
+              password => "${ELASTICSEARCH_ES_PASSWORD}"
+              ssl_certificate_authorities => "${ELASTICSEARCH_ES_SSL_CERTIFICATE_AUTHORITY}"
               index => "%{[@metadata][target_index]}-%{+YYYY.MM.dd}"
             }
             stdout { codec => json }

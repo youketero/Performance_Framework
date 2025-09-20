@@ -1,21 +1,12 @@
 FROM jenkins/jenkins:lts
 
-ARG JOB_NAME=jmeter
-
 ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Dhudson.model.DirectoryBrowserSupport.CSP=''"
 
-
-COPY ${JOB_NAME}.ndjson /var
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
-
-RUN mkdir -p /var/jenkins_home/workspace/${JOB_NAME} && mkdir -p /var/jenkins_home/jobs/${JOB_NAME} 
-COPY /jobs/${JOB_NAME}.xml /var/jenkins_home/jobs/${JOB_NAME}/config.xml
-RUN mkdir -p /var/jenkins_home/jobs/${JOB_NAME}/latest/ && mkdir -p /var/jenkins_home/jobs/${JOB_NAME}/builds/1/ 
-
-COPY casc.yaml /usr/share/jenkins/ref/casc.yaml
-ENV CASC_JENKINS_CONFIG=/usr/share/jenkins/ref/casc.yaml
-
+COPY jenkins.yaml /usr/share/jenkins/ref/jenkins.yaml
+#ENV CASC_JENKINS_CONFIG=/usr/share/jenkins/ref/casc.yaml
+ENV CASC_JENKINS_CONFIG=/usr/share/jenkins/ref/jenkins.yaml
 USER root
 RUN apt-get update && apt-get install -y \
     curl \

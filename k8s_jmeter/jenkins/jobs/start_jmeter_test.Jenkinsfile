@@ -86,7 +86,7 @@ def uploadCsvToPods(slavePods, namespace, jmeterDir, slaveNum) {
                     } else {
                         echo "Not found files for splitting"
                     }
-                    def csv_raw_split_nosplit = sh(script: "find '${WORKSPACE}' -name '*.csv' | grep -v '_nosplit' || true",returnStdout: true).trim()
+                    def csv_raw_split_nosplit = sh(script: "find '${WORKSPACE}' -name '*.csv' | grep '_nosplit' || true",returnStdout: true).trim()
                     def csvFiles_no_split = csv_raw_split_nosplit ? csv_raw_split_nosplit.split("\n").findAll { it?.trim() } : []
                     if (csvFiles_no_split && csvFiles_no_split.size() > 0) {
                             csvFiles_no_split.each { csv ->
