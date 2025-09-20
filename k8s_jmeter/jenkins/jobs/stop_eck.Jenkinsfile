@@ -1,6 +1,6 @@
 properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], 
     parameters([string(defaultValue: 'eck-operator,elasticsearch,kibana,logstash,beat', description: 'Which service will be stopped. Values comm separated. Example: eck-operator,elasticsearch,kibana,logstash,beat', name: 'Services', trim: true), 
-    string(defaultValue: 'performance', description: 'Select namespace from which services will be deleted', name: 'Namespace', trim: true)])])
+    string(defaultValue: 'performance', description: 'Select namespace from which services will be deleted', name: 'NAMESPACE', trim: true)])])
 
 
 pipeline {
@@ -46,7 +46,7 @@ pipeline {
 					}
                     items.each{ i ->
                             echo "deleting ${i}"
-                            sh "kubectl delete ${i} --all -n " + params.Namespace + " --ignore-not-found=true"
+                            sh "kubectl delete ${i} --all -n ${params.NAMESPACE} --ignore-not-found=true"
                     }
                 }
             }

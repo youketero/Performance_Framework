@@ -1,4 +1,4 @@
-properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], parameters([string(defaultValue: 'performance', description: 'Select namespace from which services will be deleted', name: 'Namespace', trim: true)])])
+properties([[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], parameters([string(defaultValue: 'performance', description: 'Select namespace from which services will be deleted', name: 'NAMESPACE', trim: true)])])
     
 pipeline {
     agent any
@@ -12,7 +12,7 @@ pipeline {
         stage('stoping jmeter nodes') {
             steps {
                 echo 'Stopping jmeter nodes'
-                sh "kubectl delete all -l jmeter_mode=slave -n " + params.Namespace + " --ignore-not-found=true && kubectl delete all -l jmeter_mode=master -n " + params.Namespace + " --ignore-not-found=true"
+                sh "kubectl delete all -l jmeter_mode=slave -n ${params.NAMESPACE} --ignore-not-found=true && kubectl delete all -l jmeter_mode=master -n ${params.NAMESPACE} --ignore-not-found=true"
             }
         }
     }
