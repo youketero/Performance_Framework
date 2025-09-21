@@ -78,7 +78,7 @@ pipeline {
                 dir('k8s_jmeter') {
                     sh 'kubectl apply -f elasticsearch.yaml'
                     sleep 5
-                    sh 'kubectl wait --for=condition=ready pod -l elasticsearch.k8s.elastic.co/cluster-name=quickstart -n performance --timeout=180s'
+                    sh 'kubectl wait --for=condition=ready pod -l elasticsearch.k8s.elastic.co/cluster-name=elasticsearch -n performance --timeout=180s'
                     echo 'Deploying ended'
                 }
                 script {
@@ -96,7 +96,7 @@ pipeline {
                 echo 'Deploying kibana'
                 dir('k8s_jmeter') {
                     sh 'kubectl apply -f kibana.yaml'
-                    sh 'kubectl wait --for=condition=ready pod -l elasticsearch.k8s.elastic.co/cluster-name=quickstart -n performance --timeout=180s'
+                    sh 'kubectl wait --for=condition=ready pod -l elasticsearch.k8s.elastic.co/cluster-name=kibana -n performance --timeout=180s'
                 }
                 echo 'Deploying ended'
             }
